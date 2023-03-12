@@ -1,0 +1,16 @@
+{% extends 'authapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="auth_h1">Sign up</h1>
+<form action="{% url 'auth:register' %}" class="auth_form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in register_form %}
+    <div class="field_wrapper">
+        {{ field.label_tag }}{{ field }}{{ field.errors }}
+    </div>
+    {% endfor %}
+    <input type="submit" class="auth_button" value="Sign up">
+</form>
+<a href="{% url 'auth:login' %}" class="auth_link">Back</a>
+{% endblock %}

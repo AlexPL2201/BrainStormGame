@@ -1,0 +1,77 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.container_auth {
+  width: 200px;
+  margin: 0 auto;
+  margin-top: 10vh;
+  border: 1px solid #000;
+  padding: 30px 20px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.container_auth img {
+  max-width: 200px;
+  height: 112.5px;
+  margin-bottom: 20px;
+}
+
+.container_auth .auth_h1 {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.container_auth .errorlist {
+  list-style-type: none;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.container_auth .field_wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.container_auth form {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-bottom: 5px;
+}
+
+.container_auth .auth_button {
+  padding: 2px 10px;
+  color: #000;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.container_auth .auth_link {
+  text-decoration: none;
+  font-size: 12px;
+  color: #000;
+}
