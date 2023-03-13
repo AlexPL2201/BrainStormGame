@@ -135,3 +135,8 @@ STATICFILES_DIRS = (
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Telegram bot
+BOT_TOKEN = '6219450372:AAG18SkAyZ6Juh-TIdAO0RV4DME59HGG3BE'
+API_ID = 1819249
+API_HASH = '9da3041ebb4fe58a85263a92d8c15f72'
