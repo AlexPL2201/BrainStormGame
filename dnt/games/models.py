@@ -20,6 +20,7 @@ class Queue(models.Model):
 
 class Lobby(models.Model):
 
+    objects = None
     types = TYPES
 
     type = models.CharField(max_length=16, choices=types, default=types[0])
