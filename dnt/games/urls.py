@@ -5,4 +5,5 @@ app_name = 'games'
 
 urlpatterns = [
     path('', games.index, name='index'),
+    path('lobby/', games.create_lobby, name='lobby'),
 ]

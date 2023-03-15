@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<a href="{% url 'home' %}">login</a>
+<h1>{{ user.nickname }}</h1>
+<h1>{{ user.current_lobby.pk }}</h1>
+</body>
+</html>
