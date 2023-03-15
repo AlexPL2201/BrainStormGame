@@ -5,7 +5,7 @@ from main import views as main
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', main.index, name="home"),
+    path('', main.index, name="home"), #todo
     # path('index/', main.index, name="home"),
     path('authapp/', include('authapp.urls', namespace='auth')),
     path('custom_admin/', include('custom_admin.urls', namespace='custom_admin')),
