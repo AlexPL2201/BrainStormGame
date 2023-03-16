@@ -64,7 +64,7 @@ class Game(models.Model):
     type = models.CharField(max_length=16, choices=types, default=types[0])
     started = models.DateTimeField(auto_now=True)
     is_finished = models.BooleanField(default=False)
-    current_question = models.ForeignKey(Question, on_delete=models.PROTECT)
+    current_question = models.ForeignKey(Question, on_delete=models.PROTECT, null=True, blank=True)
     asked_questions = models.ManyToManyField(Question, related_name='asked_questions')
     results = models.JSONField()
 
