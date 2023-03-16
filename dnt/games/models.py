@@ -66,7 +66,7 @@ class Game(models.Model):
     is_finished = models.BooleanField(default=False)
     current_question = models.ForeignKey(Question, on_delete=models.PROTECT, null=True, blank=True)
     asked_questions = models.ManyToManyField(Question, related_name='asked_questions')
-    results = models.JSONField()
+    results = models.JSONField(null=True, blank=True)
 
     @property
     def players(self):
