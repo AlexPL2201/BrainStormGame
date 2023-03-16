@@ -1,4 +1,5 @@
 from django.db import models
+from questions.models import Question
 
 TYPES = (
         ('normal', 'Обычная'),
@@ -61,6 +62,11 @@ class Game(models.Model):
     types = TYPES
 
     type = models.CharField(max_length=16, choices=types, default=types[0])
+    started = models.DateTimeField(auto_now=True)
+    is_finished = models.BooleanField(default=False)
+    current_question = models.ForeignKey(Question, on_delete=models.PROTECT)
+    asked_questions = models.ManyToManyField(Question, related_name='asked_questions')
+    results = models.JSONField()
 
     @property
     def players(self):
