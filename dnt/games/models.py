@@ -1,4 +1,5 @@
 from django.db import models
+from questions.models import Question
 
 TYPES = (
         ('normal', 'Обычная'),
@@ -17,6 +18,10 @@ class Queue(models.Model):
     def lobbies(self):
         return self.lobbies.select_related()
 
+    @property
+    def players_count(self):
+        return sum([lobby.players_count for lobby in self.lobbies.all()])
+
 
 class Lobby(models.Model):
 
@@ -32,15 +37,24 @@ class Lobby(models.Model):
 
     @property
     def players_count(self):
-        return len(self.players)
+        # return len(self.players)
+        players = self.players
+        total_players = 0
+        for _ in players.all():
+            total_players += 1
 
+        return total_players
+
+    @property
     def get_average_level(self):
         players = self.players
         total_level = 0
-        for player in players:
+        total_players = 0
+        for player in players.all():
             total_level += player.level
+            total_players += 1
 
-        return int(total_level / len(players))
+        return int(total_level / total_players)
 
 
 class Game(models.Model):
@@ -48,7 +62,12 @@ class Game(models.Model):
     types = TYPES
 
     type = models.CharField(max_length=16, choices=types, default=types[0])
+    started = models.DateTimeField(auto_now=True)
+    is_finished = models.BooleanField(default=False)
+    current_question = models.ForeignKey(Question, on_delete=models.PROTECT, null=True, blank=True)
+    asked_questions = models.ManyToManyField(Question, related_name='asked_questions')
+    results = models.JSONField(default=dict)
 
     @property
     def players(self):
-        return self.players.select_related()
+        return self.results.keys()
