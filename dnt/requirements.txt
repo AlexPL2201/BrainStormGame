@@ -1,6 +1,6 @@
 asgiref==3.6.0
-backports.zoneinfo==0.2.1
 Django==4.1.7
+Pillow==9.4.0
 pyaes==1.6.1
 pyasn1==0.4.8
 rsa==4.9
