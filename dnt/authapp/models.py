@@ -14,7 +14,7 @@ class AuthUser(AbstractUser):
     current_experience = models.PositiveSmallIntegerField(default=0, verbose_name='Опыт текущего уровня')
     friends = models.ManyToManyField('self', verbose_name='Друзья')
     current_lobby = models.ForeignKey(Lobby, related_name='players', on_delete=models.SET_NULL, null=True, blank=True)
-    current_game = models.ForeignKey(Game, related_name='players', on_delete=models.SET_NULL, null=True, blank=True)
+    current_game = models.ForeignKey(Game, on_delete=models.SET_NULL, null=True, blank=True)
 
 
 
