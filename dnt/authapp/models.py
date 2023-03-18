@@ -30,9 +30,15 @@ class QuestionRatedByUser(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name='Вопрос')
     user = models.ForeignKey(AuthUser, on_delete=models.CASCADE, verbose_name='Пользователь')
 
+    class Meta:
+        unique_together = ('question', 'user',)
+
 
 class Remark(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name='Вопрос')
     text = models.CharField(max_length=128, verbose_name='Замечание')
     author = models.ForeignKey(AuthUser, on_delete=models.CASCADE, verbose_name='Пользователь')
     rating = models.IntegerField(default=0, verbose_name='Очки')
+
+    class Meta:
+        unique_together = ('question', 'author',)
