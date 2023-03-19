@@ -1,5 +1,6 @@
 import os
 import django
+from django.db.models import Q
 from typing import List
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dnt.settings')
@@ -29,7 +30,6 @@ class SettingRatingToQuestionByUser:
 
     TODO Что еще нужно доделать ближе к релизу:
     - не давать пользователю оценивать вопросы, заведенные им (допилить модель вопроса и логику)
-    - не давать пользователю оценивать замечания, заведенные им.
     """
 
     def __init__(self, user: AuthUser):
@@ -96,10 +96,11 @@ class SettingRatingToQuestionByUser:
 
     def get_remarks_for_current_question(self) -> List[Remark]:
         """
-        Метод получения объектов замечаний к текущему вопросу
+        Метод получения объектов замечаний к текущему вопросу.
+        Фильтрует замечания просящего пользователя, чтобы он не мог оценивать свои же.
         :return:
         """
-        return Remark.objects.filter(question=self.current_question)
+        return Remark.objects.filter(~Q(author=self.user.pk), question=self.current_question)
 
     @staticmethod
     def rate_remark(remark: Remark, bad: bool = False):
