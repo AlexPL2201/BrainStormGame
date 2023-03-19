@@ -19,9 +19,17 @@ class NoUnratedQuestionsForUser(Exception):
     pass
 
 
+class AlreadyRemarkedByThisUser(Exception):
+    pass
+
+
 class SettingRatingToQuestionByUser:
     """
     Класс для операций пользователя с вопросами: оценка вопроса, просмотр замечаний, оценка замечаний
+
+    TODO Что еще нужно доделать ближе к релизу:
+    - не давать пользователю оценивать вопросы, заведенные им (допилить модель вопроса и логику)
+    - не давать пользователю оценивать замечания, заведенные им.
     """
 
     def __init__(self, user: AuthUser):
@@ -46,6 +54,7 @@ class SettingRatingToQuestionByUser:
         if not_yet_rated_questions:
             self.current_question = not_yet_rated_questions[0]
         else:
+            self.current_question = None
             raise NoUnratedQuestionsForUser
 
     def rate_current_question(self, bad: bool = False):
@@ -63,16 +72,27 @@ class SettingRatingToQuestionByUser:
                                                      user=self.user)
         question_rated_by_user.save()
 
+    def ability_to_remark_question(self):
+        try:
+            Remark.objects.get(question_id=self.current_question.pk,
+                               author_id=self.user.pk)
+            return False
+        except Remark.DoesNotExist:
+            return True
+
     def add_remark_to_current_question(self, text: str):
         """
         Метод для добавления замечания к текущему вопросу
         :param text: Текст замечания
         :return:
         """
-        remark = Remark(question=self.current_question,
-                        text=text,
-                        author=self.user)
-        remark.save()
+        if self.ability_to_remark_question():
+            remark = Remark(question=self.current_question,
+                            text=text,
+                            author=self.user)
+            remark.save()
+        else:
+            raise AlreadyRemarkedByThisUser
 
     def get_remarks_for_current_question(self) -> List[Remark]:
         """

@@ -1,8 +1,10 @@
 from django.contrib import auth
+from typing import List
 from telethon.sync import TelegramClient, events
 from telethon.tl.custom import Button
 
 from authapp.models import AuthUser
+from questions.operations import SettingRatingToQuestionByUser, AlreadyRemarkedByThisUser
 
 
 class BotLogic:
@@ -97,3 +99,94 @@ class BotLogic:
                     await self._create_account(conv)
             except Exception as e:
                 pass
+
+    async def rate_questions(self, rating_process: SettingRatingToQuestionByUser):
+
+        def get_question_buttons() -> List[Button]:
+            """
+            Внутренняя функция для получения актуального состава inline-кнопок.
+            Их состав меняется в зависимости от наличия замечаний вообще и наличия замечаний текущего пользователя.
+            :return:
+            """
+
+            # Базовый наборк кнопок вопроса
+            question_buttons = [Button.inline('👍', b'like'),
+                                Button.inline('👎', b'dislike'),
+                                Button.inline('🔚', b'cancel')]
+
+            # Если у вопроса есть замечания, добавляем кнопку для их просмотра
+            remarks = rating_process.get_remarks_for_current_question()
+            if remarks:
+                question_buttons.append(Button.inline(f'👀 {len(remarks)}', b'remarks'), )
+
+            # Если пользователь может добавить замечание (еще не добавлял на этот вопрос), добавляем кнопку для этого
+            able_to_add_remark = rating_process.ability_to_remark_question()
+            if able_to_add_remark:
+                question_buttons.append(Button.inline('✏️', b'add_remark'))
+
+            return question_buttons
+
+        while rating_process.current_question:
+            # Пока существует вопрос для оценки (не все вопросы оценены пользователем)
+
+            question = rating_process.current_question.question
+            answer = rating_process.current_question.answer.answer
+            answer_type = rating_process.current_question.answer.subtype.type.name
+            answer_subtype = rating_process.current_question.answer.subtype.name
+
+            # Строка с описанием вопроса для вывода
+            question_description_string = f'Вопрос: {question}\nОтвет: {answer}\nТип ответа: {answer_type}\nПодтип ответа: {answer_subtype}'
+
+            async with self.bot.conversation(self.telegram_id) as conv:
+                await conv.send_message(question_description_string, buttons=get_question_buttons())
+
+                press = await conv.wait_event(self._press_event(self.telegram_id))
+                if press.data == b'like':
+                    # Если пользователь нажал Like, добавляем очко вопросу и переходим к следующему
+                    rating_process.rate_current_question()
+                    rating_process.get_next_question()
+
+                elif press.data == b'dislike':
+                    # Если пользователь нажал Like, забираем очко вопросу и переходим к следующему
+                    rating_process.rate_current_question(bad=True)
+                    rating_process.get_next_question()
+
+                elif press.data == b'remarks':
+                    # Выдаем пользователю замечания на оценку
+                    for remark in rating_process.get_remarks_for_current_question():
+                        remark_text = remark.text
+                        remark_buttons = [Button.inline('👍', b'like_remark'),
+                                          Button.inline('👎', b'dislike_remark'),
+                                          Button.inline('🔚', b'cancel_remark')]
+                        await conv.send_message(f'Замечание: {remark_text}', buttons=remark_buttons)
+
+                        press = await conv.wait_event(self._press_event(self.telegram_id))
+                        if press.data == b'like_remark':
+                            # Если пользователь нажал Like, добавляем очко замечанию и переходим к следующему
+                            rating_process.rate_remark(remark=remark)
+                            await conv.send_message('Like замечания принят')
+                            continue
+                        elif press.data == b'dislike_remark':
+                            # Если пользователь нажал Dislike, забираем очко у замечания и переходим к следующему
+                            rating_process.rate_remark(remark=remark, bad=True)
+                            await conv.send_message('Dislike замечания принят')
+                            continue
+                        elif press.data == b'cancel_remark':
+                            # Если пользователь закончил смотреть замечания, возвращаемся к вопросу
+                            await conv.send_message(question_description_string, buttons=get_question_buttons())
+                            break
+
+                    else:
+                        # Если замечания закончились, возвращаемся к вопросу
+                        await conv.send_message(question_description_string, buttons=get_question_buttons())
+
+                elif press.data == b'add_remark':
+                    # Если пользователь нажал добавление замечания, берем текст и добавлем замечание
+                    remark_text = await self._get_answer_from_conv(conv=conv, question='Введи текст замечания')
+                    if remark_text:
+                        rating_process.add_remark_to_current_question(text=remark_text)
+
+                elif press.data == b'cancel':
+                    # Пользователь закончил оценку вопросов
+                    await conv.send_message('Оценка вопросов завершена')
+                    await conv.cancel()
