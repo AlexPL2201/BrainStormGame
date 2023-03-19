@@ -1,8 +1,9 @@
 from django.urls import path
-import questions.views as questions
+from questions import views
 
 app_name = 'questions'
 
 urlpatterns = [
-    path('', questions.index, name='index'),
+    path('quest_list/', views.QuestionView.as_view(), name='quest_list'),
+    path('quest_list/add_quest/', views.AddQuestionsView.as_view(), name='add_quest'),
 ]
