@@ -109,7 +109,7 @@ class BotLogic:
             :return:
             """
 
-            # Базовый наборк кнопок вопроса
+            # Базовый набор кнопок вопроса
             question_buttons = [Button.inline('👍', b'like'),
                                 Button.inline('👎', b'dislike'),
                                 Button.inline('🔚', b'cancel')]

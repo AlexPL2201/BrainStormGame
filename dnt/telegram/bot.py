@@ -12,12 +12,9 @@ import authapp
 from authapp.models import AuthUser
 from questions.operations import SettingRatingToQuestionByUser, UserLevelTooLow, NoUnratedQuestionsForUser
 
-# BOT_TOKEN = os.environ['BOT_TOKEN']
-# API_ID = os.environ['API_ID']
-# API_HASH = os.environ['API_HASH']
-BOT_TOKEN='1208251813:AAHDznm1Rugi6Uu5sgSJ_Olc6_3gkMWhsts'
-API_ID = 1819249
-API_HASH = '9da3041ebb4fe58a85263a92d8c15f72'
+BOT_TOKEN = os.environ['BOT_TOKEN']
+API_ID = os.environ['API_ID']
+API_HASH = os.environ['API_HASH']
 
 
 def work_with_chat(api_id: int, api_hash: str, bot_token: str, session_file='bot') -> None:
