@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from games.models import Lobby, Game
 from django.utils.translation import gettext_lazy as _
 
+from questions.models import Question
+
 NULLABLE = {"blank": True, "null": True}
 
 
@@ -18,3 +20,25 @@ class AuthUser(AbstractUser):
     current_lobby = models.ForeignKey(Lobby, related_name='players', on_delete=models.SET_NULL, **NULLABLE)
     current_game = models.ForeignKey(Game, on_delete=models.SET_NULL, null=True, blank=True)
     avatar = models.ImageField(upload_to="users", verbose_name=_("avatar"), **NULLABLE)
+
+
+class QuestionRatedByUser(models.Model):
+    """
+    Модель для связи вопроса с пользователем.
+    Каждая запись - факт оценки вопроса пользователем.
+    """
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name='Вопрос')
+    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE, verbose_name='Пользователь')
+
+    class Meta:
+        unique_together = ('question', 'user',)
+
+
+class Remark(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name='Вопрос')
+    text = models.CharField(max_length=128, verbose_name='Замечание')
+    author = models.ForeignKey(AuthUser, on_delete=models.CASCADE, verbose_name='Пользователь')
+    rating = models.IntegerField(default=0, verbose_name='Очки')
+
+    class Meta:
+        unique_together = ('question', 'author',)
