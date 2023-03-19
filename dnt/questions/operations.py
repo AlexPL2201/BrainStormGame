@@ -1,5 +1,6 @@
 import os
 import django
+from typing import List
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dnt.settings')
 django.setup()
@@ -31,6 +32,7 @@ class SettingRatingToQuestionByUser:
         if user.level >= MIN_LEVEL_TO_RATE_QUESTION:
             self.user = user
             self.current_question = None
+            self.get_next_question()
         else:
             raise UserLevelTooLow
 
@@ -49,7 +51,7 @@ class SettingRatingToQuestionByUser:
     def rate_current_question(self, bad: bool = False):
         """
         Метод для оценки текущего вопроса
-        :param bad: Dislike если True, Like
+        :param bad: Dislike если True, Like если False (по умолчанию)
         :return:
         """
         if not bad:
@@ -72,7 +74,7 @@ class SettingRatingToQuestionByUser:
                         author=self.user)
         remark.save()
 
-    def get_remarks_for_current_question(self) -> list:
+    def get_remarks_for_current_question(self) -> List[Remark]:
         """
         Метод получения объектов замечаний к текущему вопросу
         :return:
@@ -84,7 +86,7 @@ class SettingRatingToQuestionByUser:
         """
         Метод оценки замечания
         :param remark: Объект замечания
-        :param bad:  Dislike если True, Like
+        :param bad:  Dislike если True, Like если False (по умолчанию)
         :return:
         """
         if not bad:
@@ -98,11 +100,12 @@ if __name__ == '__main__':
     # Тестирование
     user = AuthUser.objects.get(username='taraskvitko')
     process = SettingRatingToQuestionByUser(user)
-    process.get_next_question()
+    # process.get_next_question()
     print(process.current_question.question)
-    process.rate_current_question(bad=False)
+    # process.rate_current_question(bad=False)
     # process.add_remark_to_current_question(text='Вообще тлен')
     # for remark in process.get_remarks_for_current_question():
     #     print(remark.text)
     # remark = process.get_remarks_for_current_question()[0]
+    # print(remark.text)
     # process.rate_remark(remark=remark, bad=True)
