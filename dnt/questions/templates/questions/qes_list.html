@@ -7,6 +7,11 @@
 <body>
 <h1>A list of questions</h1>
 <a href="{% url 'quest:add_quest' %}">Add a questions</a>
-
+{% for item in object_list %}
+    <div>
+        <h2>{{ item.category.name }}</h2>
+        <p>{{ item.question }}</p>
+    </div>
+{% endfor %}
 </body>
 </html>
