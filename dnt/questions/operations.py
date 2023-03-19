@@ -39,17 +39,10 @@ class SettingRatingToQuestionByUser:
         Метод перехода к следующему вопросу
         """
         already_rated_questions = QuestionRatedByUser.objects.filter(user_id=self.user.pk)
-
-        # TODO написать по-человечески, разобравшись с фильтром ниже:
-        # self.current_question = Question.objects.get(pk__not_in=[question.question_id for question in already_rated_questions])
-
-        # А пока так:
-        already_rated_questions_pks = [question.question_id for question in already_rated_questions]
-        questions = Question.objects.all()
-        for question in questions:
-            if question.pk not in already_rated_questions_pks:
-                self.current_question = question
-                break
+        not_yet_rated_questions = Question.objects.exclude(
+            pk__in=[question.question_id for question in already_rated_questions])
+        if not_yet_rated_questions:
+            self.current_question = not_yet_rated_questions[0]
         else:
             raise NoUnratedQuestionsForUser
 
@@ -102,15 +95,14 @@ class SettingRatingToQuestionByUser:
 
 
 if __name__ == '__main__':
-
     # Тестирование
     user = AuthUser.objects.get(username='taraskvitko')
     process = SettingRatingToQuestionByUser(user)
     process.get_next_question()
     print(process.current_question.question)
-    # process.rate_current_question(bad=False)
+    process.rate_current_question(bad=False)
     # process.add_remark_to_current_question(text='Вообще тлен')
-    for remark in process.get_remarks_for_current_question():
-        print(remark.text)
+    # for remark in process.get_remarks_for_current_question():
+    #     print(remark.text)
     # remark = process.get_remarks_for_current_question()[0]
     # process.rate_remark(remark=remark, bad=True)
