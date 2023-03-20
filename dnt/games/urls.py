@@ -5,5 +5,10 @@ app_name = 'games'
 
 urlpatterns = [
     path('lobby/', games.create_lobby, name='lobby'),
-    path('game/', games.queue, name='game'),
+    path('queue/', games.queue, name='queue'),
+    path('quit_lobby/', games.quit_lobby, name='quit_lobby'),
+    path('cancel_queue/', games.cancel_queue, name='cancel_queue'),
+    path('create_game/', games.create_game, name='create_game'),
+    path('game/', games.game, name='game'),
+    path('start_game/', games.start_game, name='start_game')
 ]
