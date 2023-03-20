@@ -10,6 +10,7 @@ from telethon.sync import TelegramClient, events
 from telegram.tg_bot.tg_bot import BotLogic
 import authapp
 from authapp.models import AuthUser
+from questions.operations import SettingRatingToQuestionByUser, UserLevelTooLow, NoUnratedQuestionsForUser
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
 API_ID = os.environ['API_ID']
@@ -41,6 +42,17 @@ def work_with_chat(api_id: int, api_hash: str, bot_token: str, session_file='bot
             except authapp.models.AuthUser.DoesNotExist:
                 # если в БД нет пользователя с таким telegram_id
                 await bot_logic.create_or_merge_account()
+
+        elif message.text == '/rate':
+            try:
+                user = AuthUser.objects.get(telegram_id=telegram_id)
+                rating_process = SettingRatingToQuestionByUser(user)
+                await bot_logic.rate_questions(rating_process)
+
+            except UserLevelTooLow:
+                await bot.send_message(telegram_id, 'Твоего уровня недостаточно для оценки вопросов')
+            except NoUnratedQuestionsForUser:
+                await bot.send_message(telegram_id, 'Ты уже оценил все вопросы')
 
     bot.start()
     bot.run_until_disconnected()
