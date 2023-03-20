@@ -70,4 +70,4 @@ class Game(models.Model):
 
     @property
     def players(self):
-        return self.results.keys()
+        return list(self.results.keys())

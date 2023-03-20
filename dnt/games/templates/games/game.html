@@ -1,10 +1,15 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/game.js' %}"></script>
 </head>
 <body>
 <h1> {{ game }} </h1>
+<input type="hidden" value="{{ game.pk }}" id="game_id">
 </body>
 </html>
