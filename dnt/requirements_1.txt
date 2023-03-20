@@ -1,0 +1,9 @@
+asgiref==3.6.0
+Django==4.1.7
+Pillow==9.4.0
+pyaes==1.6.1
+pyasn1==0.4.8
+rsa==4.9
+sqlparse==0.4.3
+Telethon==1.27.0
+tzdata==2022.7
