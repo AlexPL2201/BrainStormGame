@@ -5,9 +5,12 @@
     <title>Title</title>
 </head>
 <body>
-<a href="{% url 'auth:login' %}">login</a>
-<a href="{% url 'auth:register' %}">register</a>
+<a href="{% url 'auth:login' %}">Login</a>
+<a href="{% url 'auth:logout' %}">Logout</a>
+<a href="{% url 'auth:register' %}">Register</a>
+<a href="{% url 'auth:edit' %}">Edit</a>
 <a href="{% url 'games:lobby' %}">Create lobby</a>
 <a href="{% url 'quest:quest_list' %}">Questions</a>
 </body>
 </html>
+
