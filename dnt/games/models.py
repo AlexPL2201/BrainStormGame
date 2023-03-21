@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from questions.models import Question
 
@@ -37,7 +38,6 @@ class Lobby(models.Model):
 
     @property
     def players_count(self):
-        # return len(self.players)
         players = self.players
         total_players = 0
         for _ in players.all():

@@ -5,11 +5,15 @@
     <title>Title</title>
 </head>
 <body>
-<a href="{% url 'auth:login' %}">Login</a>
-<a href="{% url 'auth:logout' %}">Logout</a>
-<a href="{% url 'auth:register' %}">Register</a>
-<a href="{% url 'auth:edit' %}">Edit</a>
-<a href="{% url 'games:lobby' %}">Create lobby</a>
+<a href="{% url 'auth:login' %}">Войти</a>
+<a href="{% url 'auth:register' %}">Зарегистрироваться</a>
+<a href="{% url 'auth:logout' %}">Выйти</a>
+<a href="{% url 'auth:edit' %}">Редактировать профиль</a>
+{% if request.user.is_authenticated and request.user.current_game %}
+<a href="{% url 'games:game' %}">Продолжить игру</a>
+{% elif request.user.is_authenticated %}
+<a href="{% url 'games:lobby' %}">Играть</a>
+{% endif %}
 <a href="{% url 'quest:quest_list' %}">Questions</a>
 </body>
 </html>
