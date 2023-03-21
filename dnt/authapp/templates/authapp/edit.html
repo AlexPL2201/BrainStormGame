@@ -1,0 +1,23 @@
+{% extends 'authapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<form action="{% url 'auth:edit' %}" class="auth_form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <h1 class="auth_h1">Edit</h1>
+    {% for field in edit_form %}
+    <div class="field_wrapper">
+        {% if field.label != "Password" %}
+        {{ field.label_tag }}{{ field }}{{ field.errors }}
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% for field in edit_profile_form %}
+    <div class="field_wrapper">
+        {{ field.label_tag }}{{ field }}{{ field.errors }}
+    </div>
+    {% endfor %}
+    <input type="submit" class="auth_button" value="Save">
+</form>
+<a href="{% url 'auth:login' %}" class="auth_link">Back</a>
+{% endblock %}
