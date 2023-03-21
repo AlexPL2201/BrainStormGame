@@ -9,7 +9,21 @@
     <script src="{% static 'js/game.js' %}"></script>
 </head>
 <body>
-<h1> {{ game }} </h1>
-<input type="hidden" value="{{ game.pk }}" id="game_id">
+<h1> {{ request.user.current_game.pk }} </h1>
+<input type="hidden" value="{{ request.user.current_game.pk }}" id="game_id">
+<input type="hidden" value="{{ request.user.pk }}" id="user_id">
+<div class="game_questions_block">
+    <h3 class="game_question"></h3>
+    <div class="game_answers_block"></div>
+    <button class="game_answer_button">Ответить</button>
+</div>
+<div class="game_score_block">
+    {% for user in users %}
+        <div class="game_score_subblock" id="score_{{ user.pk }}">
+            <span class="game_score_nickname">{{ user.nickname }} </span>
+            <span class="game_score"></span>
+        </div>
+    {% endfor %}
+</div>
 </body>
 </html>
