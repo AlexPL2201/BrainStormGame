@@ -3,7 +3,7 @@
 <html lang="en">
     <head>
         <title>{% block title %}{% endblock %}</title>
-        {% block style %}    {% endblock %}
+        {% block style %}<link rel="stylesheet" href="{% static 'css/style.css'%}">{% endblock %}
         {% block head %}    {% endblock %}
     </head>
     <body>
