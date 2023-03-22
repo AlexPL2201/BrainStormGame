@@ -1,5 +1,6 @@
 import time
 import random
+from collections import Counter
 from datetime import datetime
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -201,10 +202,37 @@ def start_game(request):
             # даётся время на просмотр верного ответа
             time.sleep(GAME_TIME_SHOW_ANSWER)
 
-        # закрытие игры и убирание её объекта из current_game всех игроков
+        # закрытие игры
         current_game = Game.objects.get(pk=request.user.current_game.pk)
         current_game.is_finished = True
+
+        # функция получения среднего времени правильных ответов
+        def average_time(lst):
+            return datetime.strftime(datetime.fromtimestamp(sum(map(
+                lambda x: datetime.timestamp(datetime.strptime(x[:-7], '%Y-%m-%d %H:%M:%S')), lst)) / len(lst)),
+                                     '%Y-%m-%d %H:%M:%S')
+
+        # определение мест
+        standings = sorted([(pk, result['score']) for pk, result in current_game.results.items()],
+                           key=lambda x: x[1], reverse=True)
+
+        # определение мест при ничьих по очкам на основе времени правильных ответов
+        scores = [x[1] for x in standings]
+        scores_counter = Counter(scores)
+        for score, count in scores_counter.items():
+            if count > 1:
+                index = scores.index(score)
+                standings = standings[:index] + \
+                            sorted(standings[index:index + count],
+                                   key=lambda x: average_time([x[1] for x in current_game.results[x[0]]['answer_time'] if x[0]])) + \
+                            standings[index + count:]
+
+        # занесение мест в результаты игры
+        for i, standing in enumerate(standings):
+            current_game.results[standing[0]]['place'] = i + 1
         current_game.save()
+
+        # убирание объекта игры из current_game всех игроков
         for user in AuthUser.objects.filter(current_game=current_game.pk):
             user.current_game = None
             user.save()
@@ -247,16 +275,16 @@ def results(request, game_id):
     current_game = Game.objects.get(pk=game_id)
     players = AuthUser.objects.filter(pk__in=current_game.players)
 
-    # создание списка кортежей пар игрок-результат
+    # создание списка кортежей игрок-место-баллы
     game_results = []
 
     for player in players:
-        game_results.append((player, int(current_game.results[str(player.pk)]['score'])))
+        game_results.append((player, int(current_game.results[str(player.pk)]['place']), current_game.results[str(player.pk)]['score']))
 
     context = {
         'title': 'Результаты игры',
-        # сортировка списка по результатам
-        'results': sorted(game_results, key=lambda x: x[1], reverse=True)
+        # сортировка спика кортежей по месту
+        'results': sorted(game_results, key=lambda x: x[1])
     }
 
     return render(request, 'games/results.html', context)
