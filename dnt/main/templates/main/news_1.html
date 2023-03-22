@@ -1,16 +1,14 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}
     Игровые новости
-{% endblock %}
-{% block style %}
-	{% include "style/style.css" %}
 {% endblock %}
 {% block head %}
     {% include "head.html" %}
 {% endblock %}
 {% block body %}
     <div id="site_content">
-        {% include "inc-info.html" %}
+        {% include "main/includes/inc-info.html" %}
         <div id="content">
             <h1>Gaming news</h1>
             <p>

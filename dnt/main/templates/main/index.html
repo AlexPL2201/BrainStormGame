@@ -1,17 +1,15 @@
-{% extends "base.html" %}
+{% extends "main/base.html" %}
+{% load static %}
 {% block title %}
     Главная
 {% endblock %}
-{% block style %}
-	{% include "style/style.css" %}
-{% endblock %}
 {% block head %}
-    {% include "head.html" %}
+    {% include "main/includes/head.html" %}
 {% endblock %}
 {% block body %}
-    {% include "index-body.html" %}
+    {% include "main/includes/index-body.html" %}
 {% endblock %}
 {% block footer %}
-    {% include "footer.html" %}
+    {% include "main/includes/footer.html" %}
 {% endblock %}
 
