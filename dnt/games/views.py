@@ -1,5 +1,6 @@
 import time
 import random
+import math
 from collections import Counter
 from datetime import datetime
 from django.shortcuts import render
@@ -71,7 +72,9 @@ def create_game(request):
 
     # получается объект очереди, а также создаётся объект игры
     current_queue = request.user.current_lobby.queue
-    current_game = Game.objects.create()
+    current_game = Game.objects.create(lowest_level=current_queue.lowest_level,
+                                       highest_level=current_queue.highest_level,
+                                       type=current_queue.type)
 
     # объектам всех пользователей в очереди в поле current_game присваивается созданная игра,
     # объекты очереди и всех лобби удаляются
@@ -232,8 +235,38 @@ def start_game(request):
             current_game.results[standing[0]]['place'] = i + 1
         current_game.save()
 
-        # убирание объекта игры из current_game всех игроков
-        for user in AuthUser.objects.filter(current_game=current_game.pk):
+        # начисление опыта за игру
+        for pk, result in current_game.results.items():
+            user = AuthUser.objects.get(pk=pk)
+            xp = XP_PER_GAME / result['place']
+            print(f'{user.nickname}-{result["place"]}: {xp}')
+            xp += XP_FIRST_PLACE_BONUS if result['place'] == 1 else 0
+            print(f'{user.nickname}-{result["place"]}: {xp}')
+
+            # калибровка опыта в зависимости от уровня игрока относительно уровня игры
+            xp_ratio = 1
+            if current_game.lowest_level > user.level:
+                xp_ratio += XP_OUT_OF_LEVEL_BONUS_RATIO \
+                            * math.ceil((current_game.lowest_level - user.level) / QUEUE_LEVEL_RANGE)
+            elif current_game.highest_level < user.level:
+                xp_ratio -= XP_OUT_OF_LEVEL_BONUS_RATIO \
+                            * math.ceil((user.level - current_game.highest_level) / QUEUE_LEVEL_RANGE)
+            xp *= xp_ratio
+            print(f'{user.nickname}-{result["place"]}: {xp}')
+
+            # добавление опыта пользователю
+            user.current_experience += int(xp / int(user.level * 0.5))
+            print(f'{user.nickname}-{result["place"]}: {user.current_experience}')
+
+            # проверка перехода на новый уровень и его реализация
+            if user.current_experience >= XP_PER_LEVEL:
+                ratio = user.current_experience // XP_PER_LEVEL
+                user.current_experience -= XP_PER_LEVEL * ratio
+                user.level += ratio
+            print(f'{user.nickname}-{result["place"]}: {user.current_experience}')
+            print(f'{user.nickname}-{result["place"]}: {user.level}')
+
+            # убирание объекта игры из current_game всех игроков
             user.current_game = None
             user.save()
 
