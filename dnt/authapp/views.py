@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from authapp.forms import AuthUserRegisterForm, AuthUserLoginForm
+from authapp.forms import AuthUserRegisterForm, AuthUserLoginForm, AuthUserEditForm
 
 
 def login(request):
@@ -50,3 +50,21 @@ def register(request):
         'register_form': register_form,
     }
     return render(request, 'authapp/register.html', context)
+
+
+def edit(request):
+    if request.method == 'POST':
+        edit_form = AuthUserEditForm(request.POST, request.FILES, instance=request.user)
+        if edit_form.is_valid():
+            edit_form.save()
+            return HttpResponseRedirect(reverse('home'))
+    else:
+        edit_form = AuthUserEditForm(instance=request.user)
+
+    context = {
+        'title': 'edit',
+        'edit_form': edit_form,
+    }
+    return render(request, 'authapp/edit.html', context)
+
+
