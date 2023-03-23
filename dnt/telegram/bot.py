@@ -11,6 +11,8 @@ from telegram.tg_bot.tg_bot import BotLogic
 import authapp
 from authapp.models import AuthUser
 from questions.operations import SettingRatingToQuestionByUser, UserLevelTooLow, NoUnratedQuestionsForUser
+from variables import MENU_BUTTONS
+
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
 API_ID = os.environ['API_ID']
@@ -43,7 +45,7 @@ def work_with_chat(api_id: int, api_hash: str, bot_token: str, session_file='bot
                 # если в БД нет пользователя с таким telegram_id
                 await bot_logic.create_or_merge_account()
 
-        elif message.text == '/rate':
+        elif message.text == MENU_BUTTONS[1]:
             try:
                 user = AuthUser.objects.get(telegram_id=telegram_id)
                 rating_process = SettingRatingToQuestionByUser(user)
