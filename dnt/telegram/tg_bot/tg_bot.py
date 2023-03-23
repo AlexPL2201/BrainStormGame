@@ -43,12 +43,20 @@ class BotLogic:
             return True
         return False
 
-    async def _merge_accounts(self, conv: TelegramClient.conversation) -> None:
+    # @staticmethod
+    async def menu_buttons(self):
+        async with self.bot.conversation(self.telegram_id) as conv:
+            buttons = [Button.text('Создать вопрос', resize=True),
+                       Button.text('Оценить вопросы', resize=True),
+                       Button.text('Начать игры', resize=True),
+                       Button.text('Профиль', resize=True)]
+            return buttons
+
+    async def _merge_accounts(self, conv: TelegramClient.conversation, menu_buttons) -> None:
         """
         Функция связывания аккаунтов:
         - в случае успешной авторизации аккаунту в базе добавляется переданный telegram id
         """
-
         username = await self._get_answer_from_conv(conv=conv, question='Введи имя пользователя')
         if username:
             password = await self._get_answer_from_conv(conv=conv, question='Введи пароль')
@@ -62,23 +70,25 @@ class BotLogic:
                     current_user.telegram_id = self.telegram_id
                     current_user.save()
                     await conv.send_message(
-                        f'Аккаунты связаны: login {current_user.username}, telegram_id {current_user.telegram_id}')
+                        f'Аккаунты связаны: login {current_user.username}, telegram_id {current_user.telegram_id}', buttons=menu_buttons)
                 else:
                     await conv.send_message(f'Неверный логин или пароль')
 
-    async def _create_account(self, conv: TelegramClient.conversation) -> None:
+    async def _create_account(self, conv: TelegramClient.conversation, menu_buttons) -> None:
         """
         Функция создания аккаунта в системе на основе telegram id
         """
 
         new_user = AuthUser(telegram_id=self.telegram_id, username=self.telegram_username)
         new_user.save()
-        await conv.send_message(f'Создан новый аккаунт: login {new_user.username}, telegram_id {new_user.telegram_id}')
+        await conv.send_message(f'Создан новый аккаунт: login {new_user.username}, telegram_id {new_user.telegram_id}', buttons=menu_buttons)
 
-    async def send_welcome_back(self):
-        await self.bot.send_message(self.telegram_id, 'С возвращением!')
+    async def send_welcome_back(self, menu_buttons):
+        await self.bot.send_message(self.telegram_id, 'С возвращением!', buttons=menu_buttons)
 
-    async def create_or_merge_account(self):
+
+
+    async def create_or_merge_account(self, menu_buttons):
         """
         Функция создания нового аккаунта на базе telegram id
         или связи telegram id с существующим аккаунтом
@@ -93,10 +103,10 @@ class BotLogic:
                 press = await conv.wait_event(self._press_event(self.telegram_id))
                 if press.data == b'merge':
                     # связывание аккаунтов
-                    await self._merge_accounts(conv)
+                    await self._merge_accounts(conv, menu_buttons)
                 elif press.data == b'create':
                     # создание аккаунта
-                    await self._create_account(conv)
+                    await self._create_account(conv, menu_buttons)
             except Exception as e:
                 pass
 
