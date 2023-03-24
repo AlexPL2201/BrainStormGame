@@ -11,7 +11,7 @@ from telegram.tg_bot.tg_bot import BotLogic
 import authapp
 from authapp.models import AuthUser
 from questions.operations import SettingRatingToQuestionByUser, UserLevelTooLow, NoUnratedQuestionsForUser
-from telethon.tl.custom import Button
+from variables import MENU_BUTTONS
 
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
@@ -35,23 +35,17 @@ def work_with_chat(api_id: int, api_hash: str, bot_token: str, session_file='bot
                              telegram_id=telegram_id,
                              telegram_username=message.chat.username)
 
-        # кнопки основного меню (Custom Keyboard), которые выводятся в случае успешной авторизации пользователя
-        menu_buttons = [Button.text('Создать вопрос', resize=True),
-                        Button.text('Оценить вопросы', resize=True),
-                        Button.text('Начать игры', resize=True),
-                        Button.text('Профиль', resize=True)]
-
         if message.text == '/start':
             try:
                 AuthUser.objects.get(telegram_id=telegram_id)
                 # если в БД есть пользователь с таким telegram_id
-                await bot_logic.send_welcome_back(menu_buttons)
+                await bot_logic.send_welcome_back()
 
             except authapp.models.AuthUser.DoesNotExist:
                 # если в БД нет пользователя с таким telegram_id
-                await bot_logic.create_or_merge_account(menu_buttons)
+                await bot_logic.create_or_merge_account()
 
-        elif message.text == '/rate':
+        elif message.text == MENU_BUTTONS[1]:
             try:
                 user = AuthUser.objects.get(telegram_id=telegram_id)
                 rating_process = SettingRatingToQuestionByUser(user)

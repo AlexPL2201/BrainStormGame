@@ -5,9 +5,15 @@ from telethon.tl.custom import Button
 
 from authapp.models import AuthUser
 from questions.operations import SettingRatingToQuestionByUser, AlreadyRemarkedByThisUser
+from variables import MENU_BUTTONS
 
 
 class BotLogic:
+    # кнопки основного меню (Custom Keyboard), которые выводятся в случае успешной авторизации пользователя
+    KEYBOARD = [Button.text(MENU_BUTTONS[0], resize=True),
+                Button.text(MENU_BUTTONS[1], resize=True),
+                Button.text(MENU_BUTTONS[2], resize=True),
+                Button.text(MENU_BUTTONS[3], resize=True)]
 
     def __init__(self, bot: TelegramClient, telegram_id: int, telegram_username: str):
         self.bot = bot
@@ -43,16 +49,7 @@ class BotLogic:
             return True
         return False
 
-    # @staticmethod
-    async def menu_buttons(self):
-        async with self.bot.conversation(self.telegram_id) as conv:
-            buttons = [Button.text('Создать вопрос', resize=True),
-                       Button.text('Оценить вопросы', resize=True),
-                       Button.text('Начать игры', resize=True),
-                       Button.text('Профиль', resize=True)]
-            return buttons
-
-    async def _merge_accounts(self, conv: TelegramClient.conversation, menu_buttons) -> None:
+    async def _merge_accounts(self, conv: TelegramClient.conversation) -> None:
         """
         Функция связывания аккаунтов:
         - в случае успешной авторизации аккаунту в базе добавляется переданный telegram id
@@ -70,25 +67,23 @@ class BotLogic:
                     current_user.telegram_id = self.telegram_id
                     current_user.save()
                     await conv.send_message(
-                        f'Аккаунты связаны: login {current_user.username}, telegram_id {current_user.telegram_id}', buttons=menu_buttons)
+                        f'Аккаунты связаны: login {current_user.username}, telegram_id {current_user.telegram_id}', buttons=self.KEYBOARD)
                 else:
                     await conv.send_message(f'Неверный логин или пароль')
 
-    async def _create_account(self, conv: TelegramClient.conversation, menu_buttons) -> None:
+    async def _create_account(self, conv: TelegramClient.conversation) -> None:
         """
         Функция создания аккаунта в системе на основе telegram id
         """
 
         new_user = AuthUser(telegram_id=self.telegram_id, username=self.telegram_username)
         new_user.save()
-        await conv.send_message(f'Создан новый аккаунт: login {new_user.username}, telegram_id {new_user.telegram_id}', buttons=menu_buttons)
+        await conv.send_message(f'Создан новый аккаунт: login {new_user.username}, telegram_id {new_user.telegram_id}', buttons=self.KEYBOARD)
 
-    async def send_welcome_back(self, menu_buttons):
-        await self.bot.send_message(self.telegram_id, 'С возвращением!', buttons=menu_buttons)
+    async def send_welcome_back(self):
+        await self.bot.send_message(self.telegram_id, 'С возвращением!', buttons=self.KEYBOARD)
 
-
-
-    async def create_or_merge_account(self, menu_buttons):
+    async def create_or_merge_account(self):
         """
         Функция создания нового аккаунта на базе telegram id
         или связи telegram id с существующим аккаунтом
@@ -103,10 +98,10 @@ class BotLogic:
                 press = await conv.wait_event(self._press_event(self.telegram_id))
                 if press.data == b'merge':
                     # связывание аккаунтов
-                    await self._merge_accounts(conv, menu_buttons)
+                    await self._merge_accounts(conv)
                 elif press.data == b'create':
                     # создание аккаунта
-                    await self._create_account(conv, menu_buttons)
+                    await self._create_account(conv)
             except Exception as e:
                 pass
 

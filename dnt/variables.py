@@ -15,3 +15,10 @@ GAME_TIME_SHOW_ANSWER = 3
 # games: points
 GAME_POINTS_FOR_CORRECT = 1
 GAME_POINTS_FOR_FASTEST = 1
+
+# Telegram BOT Custom Keyboard Button's Name
+MENU_BUTTONS = ['Создать вопрос',
+                'Оценить вопросы',
+                'Начать игры',
+                'Профиль',
+                ]
