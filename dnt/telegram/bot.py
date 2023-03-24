@@ -56,6 +56,13 @@ def work_with_chat(api_id: int, api_hash: str, bot_token: str, session_file='bot
             except NoUnratedQuestionsForUser:
                 await bot.send_message(telegram_id, 'Ты уже оценил все вопросы')
 
+        elif message.text == MENU_BUTTONS[3]:
+            user = AuthUser.objects.get(telegram_id=telegram_id)
+            user_profile = f'Имя пользователя: {user.username}\n' \
+                           f'Никнэйм: {user.nickname}\n' \
+                           f'Присоединился: {str(user.date_joined)[:10]}'
+            await bot.send_message(telegram_id, user_profile)
+
     bot.start()
     bot.run_until_disconnected()
 
