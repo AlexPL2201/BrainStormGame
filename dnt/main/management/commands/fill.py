@@ -49,3 +49,11 @@ class Command(BaseCommand):
             pass
         AuthUser.objects.create_superuser(username='pepper', password='pepper123', nickname='pepper',
                                           birthdate='2019-01-01', is_moderator=True)
+
+        for i in range(2, 10):
+            try:
+                AuthUser.objects.get(username=f'pepper{i}').delete()
+            except:
+                pass
+            AuthUser.objects.create_superuser(username=f'pepper{i}', password='pepper123', nickname=f'pepper{i}',
+                                              birthdate='2019-01-01')
