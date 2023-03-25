@@ -15,3 +15,6 @@ GAME_TIME_SHOW_ANSWER = 3
 # games: points
 GAME_POINTS_FOR_CORRECT = 1
 GAME_POINTS_FOR_FASTEST = 1
+
+# for models
+NULLABLE = {"blank": True, "null": True}
