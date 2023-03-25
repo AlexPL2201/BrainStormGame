@@ -76,9 +76,14 @@ class BotLogic:
         Функция создания аккаунта в системе на основе telegram id
         """
 
-        new_user = AuthUser(telegram_id=self.telegram_id, username=self.telegram_username)
-        new_user.save()
-        await conv.send_message(f'Создан новый аккаунт: login {new_user.username}, telegram_id {new_user.telegram_id}', buttons=self.KEYBOARD)
+        nickname = await self._get_answer_from_conv(conv=conv, question='Введи свой ник')
+        if nickname:
+            password = await self._get_answer_from_conv(conv=conv, question='Введи пароль')
+            if password:
+                new_user = AuthUser(telegram_id=self.telegram_id, username=self.telegram_username, nickname=nickname)
+                new_user.set_password(password)
+                new_user.save()
+                await conv.send_message(f'Создан новый аккаунт: login {new_user.username}, telegram_id {new_user.telegram_id}', buttons=self.KEYBOARD)
 
     async def send_welcome_back(self):
         await self.bot.send_message(self.telegram_id, 'С возвращением!', buttons=self.KEYBOARD)
