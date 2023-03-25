@@ -11,5 +11,6 @@ class QuestionView(TemplateView):
         context_data['object_list'] = Question.objects.all()
         return context_data
 
+
 class AddQuestionsView(TemplateView):
     template_name = 'questions/add_quest.html'
