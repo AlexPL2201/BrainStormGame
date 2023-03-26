@@ -4,7 +4,7 @@ from telethon.sync import TelegramClient, events
 from telethon.tl.custom import Button
 
 from authapp.models import AuthUser
-from questions.operations import SettingRatingToQuestionByUser, AlreadyRemarkedByThisUser
+from questions.operations import SettingRatingToQuestionByUser
 from variables import MENU_BUTTONS
 
 
@@ -24,7 +24,7 @@ class BotLogic:
     async def _get_answer_from_conv(conv: TelegramClient.conversation, question: str):
         """
         Функция-обертка над фрагментом диалога
-        (отправит пользователю уведомление, есил время ожилания ответа истечет)
+        (отправит пользователю уведомление, если время ожидания ответа истечет)
         """
 
         timeout_message = 'Время ответа истекло'
@@ -188,7 +188,8 @@ class BotLogic:
 
                     else:
                         # Если замечания закончились, возвращаемся к вопросу
-                        await conv.send_message(question_description_string, buttons=get_question_buttons())
+                        pass    # получалось дублирование сообщений, этот шаг лишний, TODO разобраться получше
+                        # await conv.send_message(question_description_string, buttons=get_question_buttons())
 
                 elif press.data == b'add_remark':
                     # Если пользователь нажал добавление замечания, берем текст и добавлем замечание
