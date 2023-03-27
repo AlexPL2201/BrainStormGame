@@ -5,13 +5,15 @@
     <title>Title</title>
 </head>
 <body>
-<h1>A list of questions</h1>
-<a href="{% url 'quest:add_quest' %}">Add a questions</a>
+<h1>Библиотека вопросов</h1>
 {% for item in object_list %}
-    <div>
-        <h2>{{ item.category.name }}</h2>
-        <p>{{ item.question }}</p>
-    </div>
+    {% if item.is_validated == False %}
+        <div>
+            <h2>{{ item.category.name }}</h2>
+            <h3>{{ item.created_at }}</h3>
+            <p>{{ item.question }}</p>
+        </div>
+    {% endif %}
 {% endfor %}
 </body>
 </html>
