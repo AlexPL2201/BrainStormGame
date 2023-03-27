@@ -255,7 +255,7 @@ def start_game(request):
             print(f'{user.nickname}-{result["place"]}: {xp}')
 
             # добавление опыта пользователю
-            user.current_experience += int(xp / int(user.level * 0.5))
+            user.current_experience += int(xp / max(int(user.level * 0.5), 1))
             print(f'{user.nickname}-{result["place"]}: {user.current_experience}')
 
             # проверка перехода на новый уровень и его реализация
