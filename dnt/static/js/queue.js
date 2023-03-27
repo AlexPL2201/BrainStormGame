@@ -25,7 +25,7 @@ window.addEventListener('load', () => {
     // функция выхода из очереди
     function cancel_queue() {
         // необходимые изменения интерфейса
-        $('.lobby_cancel_queue_button').html('Start game');
+        $('.lobby_cancel_queue_button').html('Начать игру');
         $('.lobby_cancel_queue_button').addClass('lobby_start_game_button');
         $('.lobby_cancel_queue_button').removeClass('lobby_cancel_queue_button');
 
