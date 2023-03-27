@@ -43,6 +43,10 @@
         color: #1293EE;
     }
 
+    h4 {
+        margin-top: -5%;
+    }
+
     h5, h6 {
         font: italic 95% arial, sans-serif;
         padding: 0 0 15px 0;
@@ -61,6 +65,10 @@
 
     a:hover {
         text-decoration: none;
+    }
+
+    a:visited {
+        color: #9C27B0;
     }
 
     .left {
@@ -109,6 +117,7 @@
     #main,
     #logo,
     #menubar,
+    #delimiter,
     #site_content,
     #footer
     {
@@ -163,6 +172,17 @@
         background: #F05A00 url(https://www.html5webtemplates.co.uk/wp-content/uploads/2020/templates/colour_orange/style/menu.png) repeat-x;
     }
 
+    #delimiter {
+      width: 898px;
+      font: normal 100% 'lucida sans unicode', arial, sans-serif;
+      height: 33px;
+      padding: 33px 0 5px 0;
+      text-align: center;
+      background: #F05A00 url(https://www.html5webtemplates.co.uk/wp-content/uploads/2020/templates/colour_orange/style/menu.png) repeat-x;
+      color: #FFF;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
     ul#menu, ul#menu li {
         float: left;
         margin: 0;
