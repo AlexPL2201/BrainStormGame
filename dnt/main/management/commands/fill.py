@@ -57,3 +57,8 @@ class Command(BaseCommand):
                 pass
             AuthUser.objects.create_superuser(username=f'pepper{i}', password='pepper123', nickname=f'pepper{i}',
                                               birthdate='2019-01-01')
+
+        pepper = AuthUser.objects.get(username='pepper')
+        pepper2 = AuthUser.objects.get(username='pepper2')
+        pepper.friends.add(pepper2)
+        pepper2.friends.add(pepper)

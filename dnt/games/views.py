@@ -7,6 +7,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from django.db.models import Q
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 from .models import Lobby, Queue, Game
 from authapp.models import AuthUser
 from questions.models import Question, Answer
@@ -27,8 +29,34 @@ def create_lobby(request):
     context = {
         'title': 'Игровое лобби',
         'user': current_user,
+        'modes': Game.types,
+        'users': '',
+        'friends': AuthUser.objects.filter(pk__in=current_user.friends.values_list('pk'))
     }
     return render(request, 'games/lobby.html', context=context)
+
+
+def join_lobby(request):
+
+    sender = AuthUser.objects.get(pk=int(request.GET.get('sender_id')))
+    lobby = Lobby.objects.get(pk=sender.current_lobby.pk)
+    current_user = request.user
+    current_user.current_lobby = lobby
+    current_user.save()
+
+    context = {
+        'title': 'Игровое лобби',
+        'user': current_user,
+        'modes': Game.types,
+        'users': AuthUser.objects.filter(current_lobby=lobby).exclude(pk=current_user.pk),
+        'friends': AuthUser.objects.filter(pk__in=current_user.friends.values_list('pk'))
+    }
+
+    return HttpResponse(render_to_string('games/lobby.html', context=context))
+
+
+def change_game_mode(request):
+    pass
 
 
 # view добавления в очередь и проверки количества игроков в ней

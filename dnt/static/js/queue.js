@@ -1,6 +1,6 @@
 window.addEventListener('load', () => {
 
-    let notificationSocket;
+    let userSocket, queueSocket;
     let interval;
     let sec = 0;
     let min = 0;
@@ -8,12 +8,50 @@ window.addEventListener('load', () => {
     let accept_count = 0;
     let is_last_player = false;
     let accepted = false;
+    let user_id = $('#user_id').val();
+    let sender;
+
+    // запуск сокета
+    userSocket = new WebSocket (
+        'ws://' + window.location.host + '/ws/user/' + user_id
+    );
+
+    // метод при открытии сокета (пусто)
+    userSocket.onopen = (e) => {
+        console.log('open')
+        console.log(e)
+    }
+
+    // метод при получении сообщения
+    userSocket.onmessage = (e) => {
+        // получение объекта сообщения и действия из него
+        const data = JSON.parse(e.data)['message'];
+        let action = data['action'];
+        if(action == 'invitation') {
+            sender = data['sender'];
+            $('.lobby_invitation_nickname').html(`Принять приглашение от ${sender['nickname']}`);
+            $('.lobby_invitation_accept').css('display', 'inline');
+            $('.lobby_invitation_reject').css('display', 'inline');
+        };
+    };
+
+    // метод при закрытии сокета (пусто)
+    userSocket.onclose = (e) => {
+        console.log('close')
+        console.log(e);
+    }
+
+    // метод при ошибке у сокета (пусто)
+    userSocket.onerror = (e) => {
+        console.log('error')
+        console.log(e)
+    }
 
     // функция проверки сокета и отправки запросов на подтверждение игры пользователям от последнего игрока в очереди
     function connection_check(last_player_id) {
         // если сокет подключён и готов к работе, отправка запросов
-        if(notificationSocket.readyState === 1) {
-            notificationSocket.send(
+        if(queueSocket.readyState === 1) {
+            queueSocket.send(
                 JSON.stringify({'message': {'action': 'accept_request'}})
             )
         // если нет, пробуем снова через 0.5 секунды
@@ -37,7 +75,7 @@ window.addEventListener('load', () => {
         $('#min').html('');
 
         // закрытие сокета очереди и запуск соответствующих действий на серверной части
-        notificationSocket.close();
+        queueSocket.close();
         $.ajax({
             method: "get",
             url: "/games/cancel_queue/",
@@ -61,6 +99,85 @@ window.addEventListener('load', () => {
             }
         });
     }
+
+    $(document).on('change', '.lobby_change_mode', (event) => {
+
+    });
+
+    $(document).on('click', '.lobby_invite_friend', (event) => {
+        let friend_id = event.target.id.replace('friend_', '');
+        let friend_name = event.target.innerHTML;
+
+        // запуск сокета
+        friendSocket = new WebSocket (
+            'ws://' + window.location.host + '/ws/user/' + friend_id
+        );
+
+        // метод при открытии сокета (пусто)
+        friendSocket.onopen = (e) => {
+            console.log('open')
+            console.log(e)
+            friendSocket.send(
+                JSON.stringify({'message': {'action': 'invitation', 'sender': {'pk': user_id, 'nickname': $('.lobby_users>p:first-child').html()}}})
+            )
+        }
+
+        // метод при получении сообщения
+        friendSocket.onmessage = (e) => {
+            // получение объекта сообщения и действия из него
+            const data = JSON.parse(e.data)['message'];
+            let action = data['action'];
+            if(action == 'accept') {
+                event.target.remove();
+                $('.lobby_users').append(`<p id='user_${friend_id}'>${friend_name}</p>`);
+                friendSocket.close();
+            } else if(action == 'reject') {
+                $('.lobby_invitation_rejected').css('display', 'inline');
+                window.setTimeout(() => {
+                    $('.lobby_invitation_rejected').css('display', 'none');
+                }, 2000)
+                friendSocket.close();
+            }
+        };
+
+        // метод при закрытии сокета (пусто)
+        friendSocket.onclose = (e) => {
+            console.log('close')
+            console.log(e);
+        }
+
+        // метод при ошибке у сокета (пусто)
+        friendSocket.onerror = (e) => {
+            console.log('error')
+            console.log(e)
+        }
+    });
+
+    $(document).on('click', '.lobby_invitation_accept', () => {
+        $.ajax({
+            method: "get",
+            url: "/games/join_lobby/",
+            data: {sender_id: sender['pk']},
+            success: (data) => {
+                $('html').html(data);
+                userSocket.send(
+                    JSON.stringify({'message': {'action': 'accept'}})
+                );
+            },
+            error: (data) => {
+            }
+        });
+    });
+
+    $(document).on('click', '.lobby_invitation_reject', () => {
+        sender = undefined;
+        $('.lobby_invitation_nickname').html('');
+        $('.lobby_invitation_accept').css('display', 'none');
+        $('.lobby_invitation_reject').css('display', 'none');
+        userSocket.send(
+            JSON.stringify({'message': {'action': 'reject'}})
+        );
+    });
 
     // обработчик события нажатия на кнопку поиска игры
     $(document).on('click', '.lobby_start_game_button', (event) => {
@@ -94,18 +211,18 @@ window.addEventListener('load', () => {
                 queue_id = data.queue_id;
 
                 // запуск сокета
-                notificationSocket = new WebSocket (
+                queueSocket = new WebSocket (
                     'ws://' + window.location.host + '/ws/queue/' + queue_id
                 );
 
                 // метод при открытии сокета (пусто)
-                notificationSocket.onopen = (e) => {
+                queueSocket.onopen = (e) => {
                     console.log('open')
                     console.log(e)
                 }
 
                 // метод при получении сообщения
-                notificationSocket.onmessage = (e) => {
+                queueSocket.onmessage = (e) => {
                     // получение объекта сообщения и действия из него
                     const data = JSON.parse(e.data)['message'];
                     let action = data['action'];
@@ -135,7 +252,7 @@ window.addEventListener('load', () => {
                                 data: {},
                                 success: (data) => {
                                     // отправка пользователям в очереди ссылки для перехода в игру
-                                    notificationSocket.send(
+                                    queueSocket.send(
                                         JSON.stringify({'message': {'action': 'create_game', 'url': data.url}})
                                     )
                                 },
@@ -150,13 +267,13 @@ window.addEventListener('load', () => {
                 };
 
                 // метод при закрытии сокета (пусто)
-                notificationSocket.onclose = (e) => {
+                queueSocket.onclose = (e) => {
                     console.log('close')
                     console.log(e);
                 }
 
                 // метод при ошибке у сокета (пусто)
-                notificationSocket.onerror = (e) => {
+                queueSocket.onerror = (e) => {
                     console.log('error')
                     console.log(e)
                 }
@@ -177,7 +294,7 @@ window.addEventListener('load', () => {
         accepted = true;
 
         // отправка другим пользователям в очереди сообщения о том, что запрос подтверждён
-        notificationSocket.send(
+        queueSocket.send(
             JSON.stringify({'message': {'action': 'accept_count'}})
         );
     });
