@@ -1,21 +1,37 @@
-<h1>Профиль игрока</h1>
-<p>Ник: {{ user.nickname }}</p>
-<p>Дата рождения: {{ user.birthdate }}</p>
-<p>Email: {{ user.email }}</p>
-<p>Уровень: {{ user.level }}</p>
-<p>Опыт текущего уровня: {{ user.current_experience}}</p>
-<p>Друзья: {{ user.friends}}</p>
-<p>Текущая игра: {{ user.current_game}}</p>
+
+
+{% block content %}
+<div class="container_auth">
+    <h1>Профиль игрока.</h1>
+    <h2 class="auth_h1">Ник: {{ user.nickname }}</h2>
+    <h2 class="auth_h1">tg_id: {{ user.telegram_id }}</h2>
+    <h2 class="auth_h1">ДР: {{ user.birthdate }}</h2>
+    <h2 class="auth_h1">Email: {{ user.email }}</h2>
+    <h2 class="auth_h1">Опыт текущего уровня: {{ user.current_experience }}</h2>
+    <h2 class="auth_h1">Уровень: {{ user.level }}</h2>
+    <h2 class="auth_h1">Текущая игра: {{ user.current_game }}</h2>
+    <h2 class="auth_h1">Друзья: {{ user.friends }}</h2>
+</div>
 
 <a href="{% url 'user_profile:game_status' %}">Статус игры</a>
 
-    <h1>Мои игры</h1>
-    <ul>
+    <h2>Мои игры:</h2>
+
     {% for user_game in user_games %}
         <li>{{ user_game.game.name }} ({{ user_game.game }})</li>
     {% empty %}
         <li>Вы не добавили ни одной игры</li>
     {% endfor %}
-    </ul>
+
+
+
+<h2>Список друзей:</h2>
+  {% for friend in friends %}
+    <li>{{ friend.username }}</li>
+  {% empty %}
+    <li>Вы не добавили еще ни одного друга</li>
+    {% endfor %}
+ <a href="{% url 'user_profile:friends' %}" class="auth_link"><h2>Друзья</h2></a>
+{% endblock %}
 
 

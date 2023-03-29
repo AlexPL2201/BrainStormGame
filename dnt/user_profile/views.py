@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.views.generic import ListView
+
 from authapp.models import AuthUser
 from django.shortcuts import render, redirect
 from games.models import Game
@@ -45,4 +47,22 @@ def view_friends(request):
     return render(request, 'user_profile/friends.html', context)
 
 
+@login_required
+def get_friends(user_id):
+    user = AuthUser.objects.get(id=user_id)
+    friends = user.profile.friends.all()
+    return friends
 
+
+from django.views.generic import ListView, UpdateView, CreateView, DeleteView, DetailView
+
+
+class UserDetailView(DetailView):
+    model = AuthUser
+    template_name = 'user_profile/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = AuthUser.objects.get(pk=self.kwargs['pk']).nickname
+
+        return context
