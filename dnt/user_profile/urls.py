@@ -8,4 +8,9 @@ urlpatterns = [
     path('', user_profile.index, name='index'),
     path('games/', user_profile.game_status, name='game_status'),
     path('users/', user_profile.profile_view, name='profile'),
+    path('friends/', user_profile.view_friends, name='friends'),
+
 ]
+
+
+

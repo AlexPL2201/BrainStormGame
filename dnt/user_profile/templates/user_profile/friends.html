@@ -1,0 +1,14 @@
+{% extends 'authapp/base.html' %}
+
+{% block content %}
+  <h1>Список друзей</h1>
+  <ul>
+        {% for friend in friends %}
+            <li>{{ friend.name }}</li>
+        {% endfor %}
+  </ul>
+
+{% endblock %}
+
+
+

@@ -9,4 +9,13 @@
 
 <a href="{% url 'user_profile:game_status' %}">Статус игры</a>
 
+    <h1>Мои игры</h1>
+    <ul>
+    {% for user_game in user_games %}
+        <li>{{ user_game.game.name }} ({{ user_game.game }})</li>
+    {% empty %}
+        <li>Вы не добавили ни одной игры</li>
+    {% endfor %}
+    </ul>
+
 
