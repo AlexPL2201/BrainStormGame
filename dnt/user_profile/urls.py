@@ -8,6 +8,7 @@ urlpatterns = [
     path('games/', u_p.game_status, name='game_status'),
     path('friends/', u_p.view_friends, name='friends'),
     path('users/<int:pk>/', u_p.UserDetailView.as_view(), name='profile'),
+    path('users_list/', u_p.user_list, name='user_list')
 ]
 
 

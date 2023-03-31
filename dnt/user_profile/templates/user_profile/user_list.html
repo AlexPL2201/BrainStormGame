@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User List</title>
+</head>
+<body>
+    <h1>Список всех игроков:</h1>
+    <ul>
+        {% for user in users %}
+        <li>{{ user.nickname }} ({{ user.birthdate }}) ({{ user.level}}) ({{ user.telegram_id }})</li>
+        {% endfor %}
+    </ul>
+<h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
+</body>
+</html>

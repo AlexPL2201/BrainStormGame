@@ -4,6 +4,7 @@ from django.views.generic import ListView, UpdateView, CreateView, DeleteView, D
 from authapp.models import AuthUser
 from django.shortcuts import render, redirect
 from games.models import Game
+from django.http import JsonResponse
 
 
 def index(request):
@@ -25,6 +26,15 @@ def user_games(request):
         'game': game,
     }
     return render(request, 'user_profile/profile.html', context)
+
+
+@login_required
+def user_list(request):
+    users = AuthUser.objects.all()
+    context = {
+        'users': users,
+    }
+    return render(request, 'user_profile/user_list.html', context)
 
 
 @login_required
