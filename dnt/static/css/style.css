@@ -411,12 +411,12 @@
         display: flex;
     }
 
-    .left {
-
+    .but-left {
+        margin-left: -13px;
     }
 
-    .right {
-
+    .but-right {
+        margin-left: -97px;
     }
 
 </style>
