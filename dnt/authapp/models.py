@@ -19,7 +19,7 @@ class AuthUser(AbstractUser):
     friends = models.ManyToManyField('self', verbose_name='Друзья')
     current_lobby = models.ForeignKey(Lobby, related_name='players', on_delete=models.SET_NULL, **NULLABLE)
     current_game = models.ForeignKey(Game, on_delete=models.SET_NULL, null=True, blank=True)
-    avatar = models.ImageField(upload_to="users", verbose_name=_("avatar"), **NULLABLE)
+    avatar = models.ImageField(upload_to="users", verbose_name=_("Аватар"), **NULLABLE)
 
 
 class QuestionRatedByUser(models.Model):

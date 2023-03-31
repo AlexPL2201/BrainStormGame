@@ -13,12 +13,12 @@
         <form action="{% url 'auth:register' %}" class="form_settings" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {% for field in register_form %}
-            <div class="registr">
-                {{ field.label_tag }}{{ field }}{{ field.errors }}
-            </div>
+            <p><span>{{ field.label_tag }}</span>{{ field }}</p>{{ field.errors }}
             {% endfor %}
-            <p style="padding-top: 15px"><span>&nbsp;</span><input class="submit" type="submit" value="Регистрация"></p>
-            <a href="/"><span>&nbsp;</span><input class="submit" type="submit" value="Выход"></a>
+            <div class="container-buttons">
+                <div class="left"><a href="/"><input class="submit a" type="submit" value="Выход"></a></div>
+                <div class="right"><p><input class="submit" type="submit" value="Регистрация"></p></div>
+            </div>
         </form>
     </div>
 {% endblock %}
