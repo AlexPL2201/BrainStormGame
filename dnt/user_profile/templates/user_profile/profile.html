@@ -11,29 +11,11 @@
     <h2 class="auth_h1">Опыт текущего уровня: {{ user.current_experience }}</h2>
     <h2 class="auth_h1">Уровень: {{ user.level }}</h2>
     <h2 class="auth_h1">Текущая игра: {{ user.current_game }}</h2>
-    <h2 class="auth_h1">Друзья: {{ user.friends }}</h2>
 </div>
 
-<h3><a href="{% url 'user_profile:game_status' %}">Статус игры</a></h3>
-<h3><a href="{% url 'user_profile:user_list' %}">Список игроков</a></h3>
-
-    <h2>Мои игры:</h2>
-
-    {% for user_game in user_games %}
-        <li>{{ user_game.is_finished }} ({{ user_game.results }})</li>
-    {% empty %}
-        <li>Вы не добавили ни одной игры</li>
-    {% endfor %}
-
-<h2>Список друзей:</h2>
-  {% for friend in friends %}
-    <li>{{ friend.username }}</li>
-  {% empty %}
-    <li>Вы не добавили еще ни одного друга</li>
-    {% endfor %}
- <a href="{% url 'user_profile:friends' %}" class="auth_link"><h2>Друзья</h2></a>
+<a href="{% url 'user_profile:user_list' %}"><h2>Список игроков</h2></a>
+ <a href="{% url 'user_profile:friends' %}" class="auth_link"><h2>Список друзей</h2></a>
 {% endblock %}
 
 <h2><a href="{% url 'auth:logout' %}">Выйти</a></h2>
-
 

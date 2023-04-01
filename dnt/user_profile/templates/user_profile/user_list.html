@@ -7,9 +7,10 @@
     <h1>Список всех игроков:</h1>
     <ul>
         {% for user in users %}
-        <li>{{ user.nickname }} ({{ user.birthdate }}) ({{ user.level}}) ({{ user.telegram_id }})</li>
+        <li>Имя-{{ user.nickname }} Дата рождения-({{ user.birthdate }}) Уровень игрока-({{ user.level}}) Опыт текущего уровня-({{ user.current_experience }})</li>
         {% endfor %}
     </ul>
 <h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
+<h3><a href="{% url 'user_profile:manage_friends' %}">Поиск друзей</a></h3>
 </body>
 </html>

@@ -1,13 +1,15 @@
-{% extends 'authapp/base.html' %}
+
 
 {% block content %}
   <h1>Список друзей</h1>
   <ul>
         {% for friend in friends %}
-            <li>{{ friend.name }}</li>
+            <li>Имя-{{ friend.nickname }} Дата рождения-({{ friend.birthdate}})  Уровень-{{friend.level}}</li>
+        {% empty %}
+            <li>Вы не добавили еще ни одного друга</li>
         {% endfor %}
   </ul>
-
+<h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
 {% endblock %}
 
 
