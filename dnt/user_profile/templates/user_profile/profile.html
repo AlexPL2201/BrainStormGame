@@ -2,6 +2,7 @@
 
 {% block content %}
 <div class="container_auth">
+
     <h1>Профиль игрока.</h1>
     <h2 class="auth_h1">Ник: {{ user.nickname }}</h2>
     <h2 class="auth_h1">tg_id: {{ user.telegram_id }}</h2>
@@ -19,12 +20,10 @@
     <h2>Мои игры:</h2>
 
     {% for user_game in user_games %}
-        <li>{{ user_game.game.name }} ({{ user_game.game }})</li>
+        <li>{{ user_game.is_finished }} ({{ user_game.results }})</li>
     {% empty %}
         <li>Вы не добавили ни одной игры</li>
     {% endfor %}
-
-
 
 <h2>Список друзей:</h2>
   {% for friend in friends %}
@@ -34,5 +33,7 @@
     {% endfor %}
  <a href="{% url 'user_profile:friends' %}" class="auth_link"><h2>Друзья</h2></a>
 {% endblock %}
+
+<h2><a href="{% url 'auth:logout' %}">Выйти</a></h2>
 
 

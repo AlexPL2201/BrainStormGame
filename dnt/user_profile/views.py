@@ -21,7 +21,7 @@ def game_status(request):
 
 @login_required
 def user_games(request):
-    game = Game.objects.filter(authuser=request.user).all()
+    game = Game.objects.filter('results').all()
     context = {
         'game': game,
     }
