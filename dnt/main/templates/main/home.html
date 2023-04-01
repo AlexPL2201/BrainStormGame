@@ -10,7 +10,7 @@
 <a href="{% url 'auth:register' %}">Зарегистрироваться</a>
 {% else %}
 <a href="{% url 'auth:logout' %}">Выйти</a>
-<a href="{% url 'user_profile:profile' %}">Просмотр профиля</a>
+<a href="{% url 'user_profile:profile' pk=user.pk %}">Просмотр профиля</a>
 <a href="{% url 'auth:edit' %}">Редактировать профиль</a>
 {% endif %}
 {% if request.user.is_authenticated and request.user.current_game %}

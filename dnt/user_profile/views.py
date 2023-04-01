@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.views.generic import ListView, UpdateView, CreateView, DeleteView, DetailView
 from authapp.models import AuthUser
+from django.shortcuts import render, redirect
 from games.models import Game
-from django.urls import reverse
+from django.http import JsonResponse
 
 
 def index(request):
@@ -19,9 +20,46 @@ def game_status(request):
 
 
 @login_required
-def profile_view(request):
-    user = AuthUser.objects.get(username=request.user)
+def user_games(request):
+    game = Game.objects.filter('results').all()
     context = {
-        'user': user
+        'game': game,
     }
     return render(request, 'user_profile/profile.html', context)
+
+
+@login_required
+def user_list(request):
+    users = AuthUser.objects.all()
+    context = {
+        'users': users,
+    }
+    return render(request, 'user_profile/user_list.html', context)
+
+
+@login_required
+def view_friends(request):
+    user = AuthUser.objects.get(nickname=request.user)
+    friends = user.friends.all()
+    context = {
+        'friends': friends,
+    }
+    return render(request, 'user_profile/friends.html', context)
+
+
+@login_required
+def get_friends(user_id):
+    user = AuthUser.objects.get(id=user_id)
+    friends = user.profile.friends.all()
+    return friends
+
+
+class UserDetailView(DetailView):
+    model = AuthUser
+    template_name = 'user_profile/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = AuthUser.objects.get(pk=self.kwargs['pk']).nickname
+
+        return context

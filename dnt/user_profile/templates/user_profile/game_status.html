@@ -1,8 +1,21 @@
-{% extends 'authapp/base.html' %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
     <h1>My Games</h1>
-    {% for game in games %}
-        <p>Type: {{ game.type }} Старт: {{ game.started }} Финиш: {{ game.is_finished }} Результат: {game.results}</p>
-    {% endfor %}
-{% endblock %}
+    {% if request.user.is_authenticated and request.user.current_game %}
+        {% for game in games %}
+            <p>Type: {{ game.type }} Старт: {{ game.started }} Финиш: {{ game.is_finished }} Результат: {game.results}</p>
+            <a href="{% url 'games:game' %}">Продолжить игру</a>
+        {% endfor %}
+    {% else %}
+        <a href="{% url 'auth:login' %}">Войти</a>
+    {% endif %}
+
+</body>
+</html>
+
+

@@ -1,11 +1,15 @@
 from django.urls import path
-import user_profile.views as user_profile
-
-
+import user_profile.views as u_p
+from user_profile.views import UserDetailView
 app_name = 'user_profile'
 
 urlpatterns = [
-    path('', user_profile.index, name='index'),
-    path('games/', user_profile.game_status, name='game_status'),
-    path('users/', user_profile.profile_view, name='profile'),
+    path('', u_p.index, name='index'),
+    path('games/', u_p.game_status, name='game_status'),
+    path('friends/', u_p.view_friends, name='friends'),
+    path('users/<int:pk>/', u_p.UserDetailView.as_view(), name='profile'),
+    path('users_list/', u_p.user_list, name='user_list')
 ]
+
+
+
