@@ -23,7 +23,7 @@ def user_list(request):
 
 @login_required
 def view_friends(request):
-    user = AuthUser.objects.get(nickname=request.user)
+    user = AuthUser.objects.get(username=request.user)
     friends = user.friends.all()
     context = {
         'friends': friends,

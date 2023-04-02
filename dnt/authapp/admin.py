@@ -3,7 +3,7 @@ from .models import AuthUser, QuestionRatedByUser
 
 
 class AuthUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username')
+    list_display = ('id', 'nickname', 'email', 'password', 'birthdate', 'avatar')
 
 
 class QuestionRatedByUserAdmin(admin.ModelAdmin):
