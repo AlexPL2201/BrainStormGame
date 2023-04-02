@@ -19,7 +19,7 @@
 <a href="{% url 'games:lobby' %}">Играть</a>
 {% endif %}
 {% if user.is_superuser or user.is_staff %}
-<a href="{% url 'quest:quest_list' %}">Модерация вопросов</a>
+<a href="{% url 'quest:quest' %}">Модерация вопросов</a>
 {% endif %}
 {% if user.is_superuser or user.is_staff %}
 <a href="{% url 'quest:add_quest' %}">Добавить вопрос</a>

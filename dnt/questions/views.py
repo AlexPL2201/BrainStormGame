@@ -1,8 +1,10 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from django.urls import reverse
-from django.views.generic import TemplateView
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse, reverse_lazy
+from django.views.generic import TemplateView, DeleteView, UpdateView
+
+from authapp.models import Remark
 from questions.models import Question, Category, Type, SubType, Answer
 
 
@@ -14,6 +16,14 @@ class QuestionView(TemplateView):
         context_data['object_list'] = Question.objects.all()
         return context_data
 
+class QuestionDeleteView(DeleteView):
+    model = Question
+    success_url = reverse_lazy('quest:quest')
+
+class QuestionUpdateView(UpdateView):
+    model = Question
+    fields = ('question', 'is_validated')
+    success_url = reverse_lazy('quest:quest')
 
 class AddQuestionsView(TemplateView):
     template_name = 'questions/add_quest.html'

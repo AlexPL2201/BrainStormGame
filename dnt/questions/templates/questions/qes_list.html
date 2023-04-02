@@ -2,16 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Модерация вопросов</title>
 </head>
 <body>
-<h1>Библиотека вопросов</h1>
+<h1>Модерация вопросов</h1>
 {% for item in object_list %}
     {% if item.is_validated == False %}
         <div>
             <h2>{{ item.category.name }}</h2>
             <h3>{{ item.created_at }}</h3>
             <p>{{ item.question }}</p>
+            <a href="{% url 'quest:update_quest' pk=item.pk %}">Одобрить</a>
+            <a href="{% url 'quest:delete_quest' pk=item.pk %}">Не одобрять</a>
         </div>
     {% endif %}
 {% endfor %}
