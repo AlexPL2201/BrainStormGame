@@ -16,3 +16,5 @@ urlpatterns = [
                   path('telegram/', include('telegram.urls', namespace='telegram')),
                   path('user_profile/', include('user_profile.urls', namespace='user_profile')),
               ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
