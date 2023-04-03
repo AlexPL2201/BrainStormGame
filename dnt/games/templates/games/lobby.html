@@ -10,24 +10,25 @@
 </head>
 <body>
 <input type="hidden" id="user_id" value="{{ user.pk }}">
+<input type="hidden" id="max_players" value="{{ max_players }}">
 <span class="lobby_invitation_rejected" style="display: none;">Ваше приглашение отклонено</span>
 <span class="lobby_invitation_nickname"></span>
 <span class="lobby_invitation_accept" style="display: none;">Принять</span>
 <span class="lobby_invitation_reject" style="display: none;">Отклонить</span>
-<span class="lobby_start_game_button">Начать игру</span>
+<span class="{% if user.is_lobby_leader %}lobby_start_game_button{% else %}lobby_start_game_span{% endif %}">Начать игру</span>
 <span id="min"></span>:<span id="sec"></span>
 <div class="lobby_users">
     <p>{{ user.nickname }}</p>
     {% if users %}
         {% for u in users %}
-            <p>{{ u.nickname }}</p>
+            <p id="user_{{ u.pk }}">{{ u.nickname }}</p>
         {% endfor %}
     {% endif %}
 </div>
 <p>{{ user.current_lobby.pk }}</p>
-<select class="lobby_change_mode">
+<select class="lobby_change_mode" {% if not user.is_lobby_leader %}style="display: none;"{% endif %}>
     {% for mode in modes %}
-        <option value="{{ mode.0 }}">{{ mode.1 }}</option>
+        <option id="mode_{{ mode.0 }}" value="{{ mode.0 }}">{{ mode.1 }}</option>
     {% endfor %}
 </select>
 <p class="lobby_invite_button">Пригласить друга</p>
