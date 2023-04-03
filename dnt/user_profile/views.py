@@ -42,6 +42,9 @@ class UserDetailView(DetailView):
         return context
 
 
+from django.contrib import messages
+
+
 @login_required
 def manage_friends(request):
     user = request.user
@@ -56,7 +59,10 @@ def manage_friends(request):
 
     if action == 'add':
         friend = get_object_or_404(AuthUser, username=friend_username)
-        user.friends.add(friend)
+        if friend == request.user:
+            messages.error(request, "Вы не можете добавить себя в друзья")
+        else:
+            user.friends.add(friend)
     elif action == 'remove':
         friend = get_object_or_404(user.friends, username=friend_username)
         user.friends.remove(friend)

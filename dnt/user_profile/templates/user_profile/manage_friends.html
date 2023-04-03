@@ -31,12 +31,25 @@
               <input type="hidden" name="action" value="add">
               <input type="hidden" name="friend_username" value="{{ friend.username }}">
               <button type="submit">Добавить в друзья</button>
+
             </form>
           {% endif %}
         </li>
       {% endfor %}
     </ul>
   {% endif %}
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <li>{% if message.extra_tags %} class="{{ message.extra_tags }}"
+        {% endif %}
+                    {{ message }}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endif %}
 <h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
 {% endblock %}
 </body>
