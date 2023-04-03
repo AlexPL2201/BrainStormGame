@@ -1,11 +1,9 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.views.generic import ListView, UpdateView, CreateView, DeleteView, DetailView
+from django.shortcuts import render, get_object_or_404
+from django.views.generic import DetailView
 from authapp.models import AuthUser
-from django.shortcuts import render, redirect, get_object_or_404
 from games.models import Game
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 
 
 def index(request):
@@ -37,12 +35,9 @@ class UserDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = AuthUser.objects.get(pk=self.kwargs['pk']).nickname
+        context['title'] = AuthUser.objects.get(pk=self.kwargs['pk'])
 
         return context
-
-
-from django.contrib import messages
 
 
 @login_required
@@ -72,3 +67,17 @@ def manage_friends(request):
         'results': results,
     }
     return render(request, 'user_profile/manage_friends.html', context)
+
+
+@login_required
+def my_games(request):
+    user = request.user
+    obj = Game.objects.filter(players=user).order_by('-started')
+    games = [x for x in obj if str(user.pk) in x.players]
+    context = {
+        'user': user,
+        'games': games,
+    }
+    return render(request, 'user_profile/profile.html', context)
+
+# all() == filter(players=user).order_by('-started')
