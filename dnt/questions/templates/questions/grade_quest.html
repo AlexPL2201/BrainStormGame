@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% include 'questions/includes/messages.html' %}
+<h1>Оценить вопрос</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p>
+        <select name="question" required="" id="id_question">
+            {% for item in question_list %}
+            {% if item.is_validated == False %}
+            <option value="{{ item.question }}">{{ item.question }}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </p>
+    <p>
+        <input type="text" name="text" autofocus=""
+               autocapitalize="none" autocomplete="text"
+               maxlength="150" class="textinput textInput form-control"
+               required="" id="id_text" placeholder="Замечание">
+    </p>
+    <p>
+        <input type="hidden" name="author" value="{{ request.user.username }}">
+    </p>
+    <p>
+        <input type="number" name="rating" value="0"
+               class="vIntegerField" required="" id="id_rating">
+    </p>
+    <p>
+        <button type="submit" class="btn btn-primary btn-block">
+            Добавить замечание
+        </button>
+    </p>
+</form>
+
+{% block js %}
+<script>
+        $(document).ready(function () {
+            {% if messages %}
+                // Toasts
+                $(".toast").toast({ delay: 5000 });
+                $(".toast").toast("show");
+            {% endif %}
+        });
+
+
+</script>
+{% endblock %}
+</body>
+</html>
