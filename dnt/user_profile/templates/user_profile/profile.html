@@ -16,7 +16,7 @@
   {% if games %}
     <ul>
       {% for game in games %}
-        <li>{{ game.name }} - {{ game.started }} - {{ game.is_finished}}</li>
+        <li>{{ user.game.type }} - {{ user.game.started }}</li>
       {% endfor %}
     </ul>
   {% else %}

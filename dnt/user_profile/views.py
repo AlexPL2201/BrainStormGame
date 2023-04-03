@@ -35,7 +35,7 @@ class UserDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = AuthUser.objects.get(pk=self.kwargs['pk']).nickname
+        context['title'] = AuthUser.objects.get(pk=self.kwargs['pk'])
 
         return context
 
@@ -72,7 +72,8 @@ def manage_friends(request):
 @login_required
 def my_games(request):
     user = request.user
-    games = [user for user in Game.objects.all() if str(user.pk) in user.players]
+    obj = Game.objects.filter(players=user).order_by('-started')
+    games = [x for x in obj if str(user.pk) in x.players]
     context = {
         'user': user,
         'games': games,

@@ -10,5 +10,5 @@ urlpatterns = [
     path('users/<int:pk>/', u_p.UserDetailView.as_view(), name='profile'),
     path('users_list/', u_p.user_list, name='user_list'),
     path('friends_list/', u_p.manage_friends, name='manage_friends'),
-
+    path('users/<int:pk>/', u_p.my_games, name='profile')
 ]
