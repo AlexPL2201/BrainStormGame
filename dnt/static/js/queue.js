@@ -11,6 +11,7 @@ window.addEventListener('load', () => {
     let accepted = false;
     let user_id = $('#user_id').val();
     let sender;
+    let themes = [];
 
     // запуск сокета
     userSocket = new WebSocket (
@@ -63,7 +64,15 @@ window.addEventListener('load', () => {
             if(data['last_place']) {
                 $('.lobby_invite_block').css('display', 'none');
             };
-        };
+        } else if(action == 'add_theme') {
+            let html_string = '<select class="lobby_theme">';
+            for (let theme in data['themes']) {
+                html_string += `<option value='${theme[0]}'>${theme[0]}</option>`
+            };
+            html_string += '</select>';
+            console.log(html_string);
+            $('body').append(html_string);
+        }
     };
 
     // метод при закрытии сокета (пусто)
@@ -118,6 +127,7 @@ window.addEventListener('load', () => {
                 window.setTimeout(() => {
                     $('.lobby_accept_request_button').remove();
                     accept_count = 0;
+                    themes = [];
                     if(accepted == false) {
                         cancel_queue(true);
                     } else {
@@ -127,14 +137,16 @@ window.addEventListener('load', () => {
             // подсчёт подтверждений, если это последний пользователь, присоединившийся к очереди
             } else if(action == 'accept_count' && is_last_player) {
                 accept_count++;
-
+                if('theme' in Objects.keys(data)) {
+                    themes.push(data['theme']);
+                }
                 // если получено необходимое количество подтверждений, запуск действий на серверной части,
                 // необходимых для запуска игры
                 if(accept_count == max_players) {
                     $.ajax({
                         method: "get",
                         url: "/games/create_game/",
-                        data: {},
+                        data: {themes: JSON.stringify(themes)},
                         success: (data) => {
                             // отправка пользователям в очереди ссылки для перехода в игру
                             queueSocket.send(
@@ -352,10 +364,13 @@ window.addEventListener('load', () => {
     // обработчик события нажатия на кнопку для подтверждения игры
     $(document).on('click', '.lobby_accept_request_button', () => {
         accepted = true;
-
+        data = {'action': 'accept_count'};
+        if($('.lobby_theme').length) {
+            data['theme'] = $('.lobby_theme').val();
+        }
         // отправка другим пользователям в очереди сообщения о том, что запрос подтверждён
         queueSocket.send(
-            JSON.stringify({'message': {'action': 'accept_count'}})
+            JSON.stringify({'message': data})
         );
     });
 

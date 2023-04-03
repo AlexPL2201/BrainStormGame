@@ -1,6 +1,7 @@
 import time
 import random
 import math
+import json
 from collections import Counter
 from datetime import datetime
 from django.shortcuts import render
@@ -9,7 +10,7 @@ from django.forms.models import model_to_dict
 from django.db.models import Q
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from .models import Lobby, Queue, Game
+from .models import Lobby, Queue, Game, Category
 from authapp.models import AuthUser
 from questions.models import Question, Answer
 from channels.layers import get_channel_layer
@@ -78,6 +79,12 @@ def change_game_mode(request):
     lobby.type = [type_ for type_ in lobby.types if type_[0] == new_type][0]
     lobby.save()
 
+    if new_type == 'theme':
+        data = {'action': 'add_theme', 'themes': list(Category.objects.all().values_list('name'))}
+        layer = get_channel_layer()
+        for user in AuthUser.objects.filter(current_lobby=request.user.current_lobby):
+            layer.group_send(f'user_{user.pk}', {'type': 'send_message', 'message': data})
+
     return JsonResponse({'ok': 'ok'})
 
 
@@ -132,6 +139,10 @@ def create_game(request):
     current_game = Game.objects.create(lowest_level=current_queue.lowest_level,
                                        highest_level=current_queue.highest_level,
                                        type=current_queue.type)
+    if current_game.type == 'theme':
+        for theme in json.loads(request.GET['themes']):
+            current_game.categories.add(Category.objects.get(name=theme))
+        current_game.save()
 
     # объектам всех пользователей в очереди в поле current_game присваивается созданная игра,
     # объекты очереди и всех лобби удаляются
