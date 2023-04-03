@@ -72,7 +72,7 @@ def manage_friends(request):
 @login_required
 def my_games(request):
     user = request.user
-    obj = Game.objects.filter(players=user).order_by('-started')
+    obj = Game.objects.filter(players=user).order_by('-started')    # all() == filter(players=user).order_by('-started')
     games = [x for x in obj if str(user.pk) in x.players]
     context = {
         'user': user,
@@ -80,4 +80,7 @@ def my_games(request):
     }
     return render(request, 'user_profile/profile.html', context)
 
-# all() == filter(players=user).order_by('-started')
+
+def leaderboard(request):
+    players = AuthUser.objects.order_by('-current_experience')[:5]
+    return render(request, 'user_profile/leaderboard.html', {'players': players})
