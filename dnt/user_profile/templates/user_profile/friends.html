@@ -4,7 +4,7 @@
   <h1>Список друзей</h1>
   <ul>
         {% for friend in friends %}
-            <li>Имя-{{ friend.nickname }} Дата рождения-({{ friend.birthdate}})  Уровень-{{friend.level}}</li>
+            <li>Имя-{{ friend.username }} Дата рождения-({{ friend.birthdate}})  Уровень-{{friend.level}}</li>
         {% empty %}
             <li>Вы не добавили еще ни одного друга</li>
         {% endfor %}
