@@ -10,8 +10,18 @@
     <h2 class="auth_h1">Email: {{ user.email }}</h2>
     <h2 class="auth_h1">Опыт текущего уровня: {{ user.current_experience }}</h2>
     <h2 class="auth_h1">Уровень: {{ user.level }}</h2>
-    <h2 class="auth_h1">Текущая игра: {{ user.current_game }}</h2>
 </div>
+
+ <h1>Мои игры:</h1>
+  {% if games %}
+    <ul>
+      {% for game in games %}
+        <li>{{ game.name }} - {{ game.started }} - {{ game.is_finished}}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Игры не найдены.</p>
+  {% endif %}
 
 <a href="{% url 'user_profile:user_list' %}"><h2>Список игроков</h2></a>
  <a href="{% url 'user_profile:friends' %}" class="auth_link"><h2>Список друзей</h2></a>
