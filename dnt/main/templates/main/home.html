@@ -12,6 +12,8 @@
 <a href="{% url 'auth:logout' %}">Выйти</a>
 <a href="{% url 'user_profile:profile' pk=user.pk %}">Просмотр профиля</a>
 <a href="{% url 'auth:edit' %}">Редактировать профиль</a>
+
+
 {% endif %}
 {% if request.user.is_authenticated and request.user.current_game %}
 <a href="{% url 'games:game' %}">Продолжить игру</a>
@@ -20,9 +22,10 @@
 {% endif %}
 {% if user.is_superuser or user.is_staff %}
 <a href="{% url 'quest:quest' %}">Модерация вопросов</a>
-{% endif %}
-{% if user.is_superuser or user.is_staff %}
 <a href="{% url 'quest:add_quest' %}">Добавить вопрос</a>
+{% elif user.is_authenticated %}
+<a href="{% url 'quest:grade_quest' %}">Оценка вопросов</a>
+<a href="{% url 'quest:offer_quest' %}">Предложить вопрос</a>
 {% endif %}
 </body>
 </html>
