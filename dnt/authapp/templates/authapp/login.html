@@ -1,19 +1,32 @@
-{% extends 'authapp/base.html' %}
-{% load static %}
+{% extends "main/base.html" %}
 
-{% block content %}
-<h1 class="auth_h1">Sign in</h1>
-<form action="{% url 'auth:login' %}" class="auth_form" method="post">
-    {% csrf_token %}
-    {% if next %}
-        <input type="hidden" name="next" value="{{ next }}">
-    {% endif %}
-    {% for field in login_form %}
-    <div class="field_wrapper">
-        {{ field.label_tag }}{{ field }}{{ field.errors }}
-    </div>
-    {% endfor %}
-    <input type="submit" class="auth_button" value="Sign in">
-</form>
-<a href="{% url 'auth:register' %}" class="auth_link">Register</a>
+{% block title %}
+    {{ title|title }}
 {% endblock %}
+
+{% block head %}
+    {% include "main/includes/head.html" %}
+{% endblock %}
+
+{% block body %}
+    <div id="site_content">
+        <form action="{% url 'auth:login' %}" class="form_settings" method="post">
+            {% csrf_token %}
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+            {% for field in login_form %}
+                <p><span>{{ field.label_tag }}</span>{{ field }}</p>{{ field.errors }}
+            {% endfor %}
+            <div class="container-buttons">
+                <div class="but-left"><a href="{% url 'auth:register' %}"><input class="submit a" type="submit" value="Регистрация"></a></div>
+                <div class="but-right"><input class="submit a" type="submit" value="Вход"></div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    {% include "main/includes/footer.html" %}
+{% endblock %}
+
