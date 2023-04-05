@@ -1,14 +1,13 @@
 from datetime import datetime
 from django.db import models
-from questions.models import Question
+from questions.models import Question, Category
 
 TYPES = (
-        ('normal', 'Обычная'),
-    )
+    ('normal', 'Обычная'),
+)
 
 
 class Queue(models.Model):
-
     types = TYPES
 
     type = models.CharField(max_length=16, choices=types, default=types[0])
@@ -25,7 +24,6 @@ class Queue(models.Model):
 
 
 class Lobby(models.Model):
-
     objects = None
     types = TYPES
 
@@ -58,10 +56,12 @@ class Lobby(models.Model):
 
 
 class Game(models.Model):
-
     types = TYPES
 
     type = models.CharField(max_length=16, choices=types, default=types[0])
+    lowest_level = models.SmallIntegerField()
+    highest_level = models.SmallIntegerField()
+    categories = models.ManyToManyField(Category, related_name='categories')
     started = models.DateTimeField(auto_now=True)
     is_finished = models.BooleanField(default=False)
     current_question = models.ForeignKey(Question, on_delete=models.PROTECT, null=True, blank=True)
@@ -71,3 +71,4 @@ class Game(models.Model):
     @property
     def players(self):
         return list(self.results.keys())
+

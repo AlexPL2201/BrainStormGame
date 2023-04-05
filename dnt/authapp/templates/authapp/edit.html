@@ -19,5 +19,6 @@
     {% endfor %}
     <input type="submit" class="auth_button" value="Save">
 </form>
-<a href="{% url 'auth:login' %}" class="auth_link">Back</a>
+<a href="{% url 'user_profile:profile' pk=user.pk %}" class="auth_link">Back</a>
 {% endblock %}
+

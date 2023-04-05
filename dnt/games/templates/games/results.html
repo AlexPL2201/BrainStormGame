@@ -7,8 +7,9 @@
 <body>
 {% for result in results %}
     <div class="results_score_subblock">
+        <span class="results_score_place">{{ result.1 }} </span>
         <span class="results_score_nickname">{{ result.0.nickname }} </span>
-        <span class="results_score">{{ result.1 }}</span>
+        <span class="results_score">{{ result.2 }}</span>
     </div>
 {% endfor %}
 </body>

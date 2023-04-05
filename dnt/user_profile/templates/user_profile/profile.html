@@ -1,0 +1,35 @@
+
+
+{% block content %}
+<div class="container_auth">
+
+    <h1>Профиль игрока.</h1>
+    <h2 class="auth_h1">Ник: {{ user.username }}</h2>
+    <h2 class="auth_h1">Дата рождения: {{ user.birthdate }}</h2>
+    {% if user.email == '' %}
+        <a href="{% url 'auth:edit' %}"><h3>Добавьте свой email</h3></a>
+    {% else %}
+    <h2 class="auth_h1">Email: {{ user.email }}</h2>
+    {% endif %}
+    <h2 class="auth_h1">Опыт текущего уровня: {{ user.current_experience }}</h2>
+    <h2 class="auth_h1">Уровень: {{ user.level }}</h2>
+</div>
+
+ <h1>Мои игры:</h1>
+  {% if games %}
+    <ul>
+      {% for game in games %}
+        <li>{{ user.game.type }} - {{ user.game.started }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Игры не найдены.</p>
+  {% endif %}
+
+<a href="{% url 'user_profile:user_list' %}"><h2>Список всех игроков</h2></a>
+<a href="{% url 'user_profile:leaderboard' %}"><h2>Пятёрка лидеров</h2></a>
+ <a href="{% url 'user_profile:friends' %}" class="auth_link"><h2>Список друзей</h2></a>
+{% endblock %}
+
+<h2><a href="{% url 'auth:logout' %}">Выйти</a></h2>
+
