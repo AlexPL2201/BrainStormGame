@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rating</title>
+</head>
+<body>
+    <table>
+  <thead>
+    <tr>
+      <th>Никнейм</th>
+      <th>Опыт игрока</th>
+      <th>Уровень игрока</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for player in players %}
+      <tr>
+        <td>{{ player.username }}</td>
+        <td>{{ player.current_experience }}</td>
+        <td>{{ player.level }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</body>
+</html>
+
+

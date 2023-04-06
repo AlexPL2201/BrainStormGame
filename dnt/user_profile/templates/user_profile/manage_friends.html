@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+
+{% block content %}
+  <h1>Поиск друзей</h1>
+  <form method="get">
+    <input type="text" name="q" placeholder="Search for friends" value="{{ request.GET.q }}">
+    <button type="submit">Поиск</button>
+  </form>
+
+  {% if results %}
+    <ul>
+      {% for friend in results %}
+        <li>{{ friend.username }}
+          {% if friend in user.friends.all %}
+            <form method="post" action="{% url 'user_profile:manage_friends' %}">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="remove">
+              <input type="hidden" name="friend_username" value="{{ friend.username }}">
+              <button type="submit">Удалить из друзей</button>
+            </form>
+          {% else %}
+            <form method="post" action="{% url 'user_profile:manage_friends' %}">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="add">
+              <input type="hidden" name="friend_username" value="{{ friend.username }}">
+              <button type="submit">Добавить в друзья</button>
+
+            </form>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <li>{% if message.extra_tags %} class="{{ message.extra_tags }}"
+        {% endif %}
+                    {{ message }}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endif %}
+<h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
+{% endblock %}
+</body>
+</html>
+
+
+
+
+
+

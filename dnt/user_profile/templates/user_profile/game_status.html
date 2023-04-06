@@ -1,8 +1,0 @@
-{% extends 'authapp/base.html' %}
-
-{% block content %}
-    <h1>My Games</h1>
-    {% for game in games %}
-        <p>Type: {{ game.type }} Старт: {{ game.started }} Финиш: {{ game.is_finished }} Результат: {game.results}</p>
-    {% endfor %}
-{% endblock %}
