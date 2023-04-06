@@ -5,11 +5,10 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 class GamesConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
-        try:
-            name = f"queue_{self.scope['url_route']['kwargs']['queue_id']}"
-        except:
+        options = ['user', 'queue', 'game']
+        for option in options:
             try:
-                name = f"game_{self.scope['url_route']['kwargs']['game_id']}"
+                name = f"{option}_{self.scope['url_route']['kwargs'][f'{option}_id']}"
             except:
                 pass
 
