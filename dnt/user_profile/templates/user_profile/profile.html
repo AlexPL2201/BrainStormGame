@@ -1,0 +1,12 @@
+<h1>Профиль игрока</h1>
+<p>Ник: {{ user.nickname }}</p>
+<p>Дата рождения: {{ user.birthdate }}</p>
+<p>Email: {{ user.email }}</p>
+<p>Уровень: {{ user.level }}</p>
+<p>Опыт текущего уровня: {{ user.current_experience}}</p>
+<p>Друзья: {{ user.friends}}</p>
+<p>Текущая игра: {{ user.current_game}}</p>
+
+<a href="{% url 'user_profile:game_status' %}">Статус игры</a>
+
+

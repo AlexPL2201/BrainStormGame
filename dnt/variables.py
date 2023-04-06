@@ -21,3 +21,6 @@ XP_PER_LEVEL = 1000
 XP_PER_GAME = 1000
 XP_FIRST_PLACE_BONUS = 200
 XP_OUT_OF_LEVEL_BONUS_RATIO = 0.2
+
+# for models
+NULLABLE = {"blank": True, "null": True}
