@@ -58,13 +58,17 @@ def join_lobby(request):
         for user in AuthUser.objects.filter(current_lobby=current_user.current_lobby).exclude(pk=current_user.pk):
             async_to_sync(layer.group_send)(f'user_{user.pk}', {'type': 'send_message', 'message': data})
 
+        theme = True if eval(lobby.type)[0] == 'theme' else False
+
         context = {
             'title': 'Игровое лобби',
             'user': current_user,
             'modes': Game.types,
             'max_players': GAME_MAX_PLAYERS,
             'users': AuthUser.objects.filter(current_lobby=lobby).exclude(pk=current_user.pk),
-            'friends': friends
+            'friends': friends,
+            'theme': theme,
+            'themes': Category.objects.all().values_list('name')
         }
 
         return HttpResponse(render_to_string('games/lobby.html', context=context))
@@ -76,6 +80,11 @@ def change_game_mode(request):
 
     new_type = request.GET.get('mode')
     lobby = Lobby.objects.get(pk=request.user.current_lobby.pk)
+    if eval(lobby.type)[0] == 'theme':
+        layer = get_channel_layer()
+        for user in AuthUser.objects.filter(current_lobby=request.user.current_lobby):
+            async_to_sync(layer.group_send)(f'user_{user.pk}',
+                                            {'type': 'send_message', 'message': {'action': 'delete_theme'}})
     lobby.type = [type_ for type_ in lobby.types if type_[0] == new_type][0]
     lobby.save()
 
@@ -83,7 +92,7 @@ def change_game_mode(request):
         data = {'action': 'add_theme', 'themes': list(Category.objects.all().values_list('name'))}
         layer = get_channel_layer()
         for user in AuthUser.objects.filter(current_lobby=request.user.current_lobby):
-            layer.group_send(f'user_{user.pk}', {'type': 'send_message', 'message': data})
+            async_to_sync(layer.group_send)(f'user_{user.pk}', {'type': 'send_message', 'message': data})
 
     return JsonResponse({'ok': 'ok'})
 
@@ -139,7 +148,7 @@ def create_game(request):
     current_game = Game.objects.create(lowest_level=current_queue.lowest_level,
                                        highest_level=current_queue.highest_level,
                                        type=current_queue.type)
-    if current_game.type == 'theme':
+    if eval(current_game.type)[0] == 'theme':
         for theme in json.loads(request.GET['themes']):
             current_game.categories.add(Category.objects.get(name=theme))
         current_game.save()
@@ -168,7 +177,7 @@ def quit_lobby(request):
     # если пользователь в лобби один, лобби удаляется, если нет - лобби убирается из current_lobby объекта пользователя
     if current_user.current_lobby and current_user.current_lobby.players_count == 1:
         current_user.current_lobby.delete()
-    else:
+    elif current_user.current_lobby is not None:
         data = {'action': 'player_quit', 'quitter_pk': current_user.pk, 'quitter_nickname': current_user.nickname,
                 'lobby_leader': False, 'u_r_alone': False}
         layer = get_channel_layer()
@@ -215,7 +224,8 @@ def game(request):
     context = {
         'title': "Игра",
         # получение объектов всех игроков игры в алфавитном порядке
-        'users': AuthUser.objects.filter(current_game=request.user.current_game).order_by('nickname')
+        'users': AuthUser.objects.filter(current_game=request.user.current_game).order_by('nickname'),
+        'themes': request.user.current_game.categories.values_list('name')
     }
 
     return render(request, 'games/game.html', context)
@@ -237,8 +247,11 @@ def start_game(request):
         for _ in range(questions_count):
 
             # получение случайного вопроса, которого не было в игре, и добавление его в объект игры в current_question
-            question = Question.objects.exclude(pk__in=current_game.asked_questions.values_list('pk')).order_by('?').first()
+            questions = Question.objects.exclude(pk__in=current_game.asked_questions.values_list('pk'))
             current_game = Game.objects.get(pk=request.user.current_game.pk)
+            if eval(current_game.type)[0] in ['theme', 'friend']:
+                questions = questions.filter(category__pk__in=current_game.categories.values_list('pk'))
+            question = questions.order_by('?').first()
             current_game.current_question = question
             current_game.save()
 
@@ -313,7 +326,7 @@ def start_game(request):
         scores = [x[1] for x in standings]
         scores_counter = Counter(scores)
         for score, count in scores_counter.items():
-            if count > 1:
+            if count > 1 and score != 0:
                 index = scores.index(score)
                 standings = standings[:index] + \
                             sorted(standings[index:index + count],

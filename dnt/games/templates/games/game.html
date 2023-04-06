@@ -10,6 +10,13 @@
 </head>
 <body>
 <h1> {{ request.user.current_game.pk }} </h1>
+{% if themes %}
+<div>
+{% for theme in themes %}
+    <span>{{ theme.0 }}</span>
+{% endfor %}
+</div>
+{% endif %}
 <input type="hidden" value="{{ request.user.current_game.pk }}" id="game_id">
 <input type="hidden" value="{{ request.user.pk }}" id="user_id">
 <div class="game_questions_block">
