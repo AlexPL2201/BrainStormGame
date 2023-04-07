@@ -16,10 +16,11 @@
                required="" id="id_question" placeholder="Вопрос">
     </p>
     <p>
-        <input type="text" name="category" autofocus=""
-               autocapitalize="none" autocomplete="category"
-               maxlength="150" class="textinput textInput form-control"
-               required="" id="id_category" placeholder="Категория">
+        <select name="category" required="" id="id_category">
+            {% for item in category_list %}
+            <option value="{{ item.name }}">{{ item.name }}</option>
+            {% endfor %}
+        </select>
     </p>
     <p>
         <select name="type" required="" id="id_type">
