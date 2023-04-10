@@ -351,16 +351,15 @@
         font: 100% arial;
         border: 1px solid;
         width: 99px;
-        margin: 0 0 0 212px;
         height: 33px;
-        padding: 2px 0 3px 0;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         cursor: pointer;
         background: #F05A00;
         color: #FFF;
-    }
-
-    .submit a {
-        width: 200px;
+        box-sizing: border-box;
     }
 
     .form_settings textarea,
@@ -410,14 +409,9 @@
     .container-buttons {
         margin-top: 20px;
         display: flex;
-    }
-
-    .but-left {
-        margin-left: -13px;
-    }
-
-    .but-right {
-        margin-left: -97px;
+        width: 311px;
+        margin-left: 200px;
+        justify-content: space-between;
     }
 
 </style>

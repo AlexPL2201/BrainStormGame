@@ -19,8 +19,8 @@
                 <p><span>{{ field.label_tag }}</span>{{ field }}</p>{{ field.errors }}
             {% endfor %}
             <div class="container-buttons">
-                <div class="but-left"><a href="{% url 'auth:register' %}"><input class="submit a" type="submit" value="Регистрация"></a></div>
-                <div class="but-right"><input class="submit a" type="submit" value="Вход"></div>
+                <a href="{% url 'authapp:register' %}" class="submit">Регистрация</a>
+                <input class="submit" type="submit" value="Вход">
             </div>
         </form>
     </div>

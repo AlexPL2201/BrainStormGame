@@ -16,8 +16,8 @@
             <p><span>{{ field.label_tag }}</span>{{ field }}</p>{{ field.errors }}
             {% endfor %}
             <div class="container-buttons">
-                <div class="but-left"><a href="/"><input class="submit" type="submit" value="Выход"></a></div>
-                <div class="but-right"><input class="submit" type="submit" value="Регистрация"></div>
+                <a href="{% url 'authapp:login' %}" class="submit">Вход</a>
+                <input class="submit" type="submit" value="Регистрация">
             </div>
         </form>
     </div>
