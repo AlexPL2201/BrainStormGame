@@ -131,7 +131,7 @@
     #logo { width: 825px;
         position: relative;
         height: 168px;
-        background: #F79F00 url(logo.png) no-repeat;
+        background: #F79F00 url('/static/img/logo.png') no-repeat;
     }
 
     #logo #logo_text { position: absolute;
@@ -210,7 +210,7 @@
     ul#menu li.selected a,
     ul#menu li.selected a:hover {
           color: #FFF;
-          background: #F05A00 url(menu_select.png) repeat-x;
+          background: #F05A00 url('/static/img/menu_select.png') repeat-x;
     }
 
     #site_content {
@@ -218,7 +218,7 @@
           overflow: hidden;
           margin: 0 auto 0 auto;
           padding: 20px 24px 20px 37px;
-          background: #FFF url(content.png) repeat-y;
+          background: #FFF url('/static/img/content.png') repeat-y;
     }
 
     .sidebar {
@@ -242,7 +242,7 @@
     .sidebar li a:hover {
         padding: 0 0 0 40px;
         display: block;
-        background: transparent url(link.png) no-repeat left center;
+        background: transparent url('/static/img/link.png') no-repeat left center;
     }
 
     .sidebar li a.selected {
@@ -272,7 +272,7 @@
 
     #index-content ul li {
         list-style-type: none;
-        background: url(bullet.png) no-repeat;
+        background: url('/static/img/bullet.png') no-repeat;
         margin: 0 0 6px 0;
         padding: 0 0 4px 25px;
         line-height: 1.5em;
