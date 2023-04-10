@@ -7,12 +7,24 @@
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="{% static 'css/style.css'%}">
         {% block style %}{% endblock %}
+        {% block js %}{% endblock %}
     </head>
     <body>
-        {% block header %}{% endblock %}
-        {% block body %}{% endblock %}
+        {% block header %}
+            {% include "main/includes/header.html" %}
+        {% endblock %}
+        <div class="lobby_invitation_block">
+            <span class="lobby_invitation_nickname"></span>
+            <span class="lobby_invitation_accept">Принять</span>
+            <span class="lobby_invitation_reject">Отклонить</span>
+        </div>
+        <div id="site_content">
+            {% block body %}{% endblock %}
+        </div>
         <footer>
-        {% block footer %}{% endblock %}
+            {% block footer %}
+                {% include "main/includes/footer.html" %}
+            {% endblock %}
         </footer>
     </body>
 </html>
