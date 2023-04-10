@@ -1,13 +1,16 @@
-from datetime import datetime
 from django.db import models
 from questions.models import Question, Category
 
 TYPES = (
-    ('normal', 'Обычная'),
-)
+        ('normal', 'Обычная'),
+        ('ranked', 'Ранговая'),
+        ('theme', 'Тематическая'),
+        ('friend', 'Дружеская')
+    )
 
 
 class Queue(models.Model):
+
     types = TYPES
 
     type = models.CharField(max_length=16, choices=types, default=types[0])
@@ -24,6 +27,7 @@ class Queue(models.Model):
 
 
 class Lobby(models.Model):
+
     objects = None
     types = TYPES
 
@@ -56,6 +60,7 @@ class Lobby(models.Model):
 
 
 class Game(models.Model):
+
     types = TYPES
 
     type = models.CharField(max_length=16, choices=types, default=types[0])
@@ -71,4 +76,3 @@ class Game(models.Model):
     @property
     def players(self):
         return list(self.results.keys())
-

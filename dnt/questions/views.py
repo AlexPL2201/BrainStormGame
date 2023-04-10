@@ -85,9 +85,9 @@ class AddQuestionsView(TemplateView):
                 )
                 new_answer.save()
                 new_quest = Question.objects.create(
-                    category=new_category,
+                    category=Category.objects.get(name=request.POST.get('category')),
                     question=request.POST.get('question'),
-                    answer=new_answer,
+                    answer=Answer.objects.get(answer=request.POST.get('answer')),
                 )
                 new_quest.save()
                 messages.add_message(request, messages.INFO, 'Вопрос добавлен успешно')
@@ -152,6 +152,7 @@ class OfferQuestionView(TemplateView):
         context_data = super().get_context_data(**kwargs)
         context_data['type_list'] = Type.objects.all()
         context_data['subtype_list'] = SubType.objects.all()
+        context_data['category_list'] = Category.objects.all()
 
         return context_data
 
@@ -166,17 +167,13 @@ class OfferQuestionView(TemplateView):
                             request.POST.get('answer'),
                     )
             ):
-                new_category = Category.objects.create(
-                    name=request.POST.get('category')
-                )
-                new_category.save()
                 new_answer = Answer.objects.create(
                     answer=request.POST.get('answer'),
                     subtype=SubType.objects.get(name=request.POST.get('subtype'))
                 )
                 new_answer.save()
                 new_quest = Question.objects.create(
-                    category=new_category,
+                    category=Category.objects.get(name=request.POST.get('category')),
                     question=request.POST.get('question'),
                     answer=new_answer,
                 )
