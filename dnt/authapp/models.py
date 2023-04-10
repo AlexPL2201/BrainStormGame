@@ -39,7 +39,7 @@ class AuthUser(AbstractUser):
     current_lobby = models.ForeignKey(Lobby, related_name='players', on_delete=models.SET_NULL, **NULLABLE)
     is_lobby_leader = models.BooleanField(default=False)
     current_game = models.ForeignKey(Game, on_delete=models.SET_NULL, null=True, blank=True)
-    avatar = models.ImageField(upload_to="users", verbose_name=_("avatar"), **NULLABLE)
+    avatar = models.ImageField(upload_to="users", verbose_name=_("Аватар"), **NULLABLE)
 
 
 class QuestionRatedByUser(models.Model):
