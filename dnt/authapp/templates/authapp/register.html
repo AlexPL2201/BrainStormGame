@@ -4,26 +4,16 @@
     {{ title|title }}
 {% endblock %}
 
-{% block header %}
-    {% include "main/includes/header.html" %}
-{% endblock %}
-
 {% block body %}
-    <div id="site_content">
-        <form action="{% url 'auth:register' %}" class="form_settings" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% for field in register_form %}
-            <p><span>{{ field.label_tag }}</span>{{ field }}</p>{{ field.errors }}
-            {% endfor %}
-            <div class="container-buttons">
-                <a href="{% url 'authapp:login' %}" class="submit">Вход</a>
-                <input class="submit" type="submit" value="Регистрация">
-            </div>
-        </form>
-    </div>
-{% endblock %}
-
-{% block footer %}
-    {% include "main/includes/footer.html" %}
+    <form action="{% url 'auth:register' %}" class="form_settings" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in register_form %}
+        <p><span>{{ field.label_tag }}</span>{{ field }}</p>{{ field.errors }}
+        {% endfor %}
+        <div class="container-buttons">
+            <a href="{% url 'authapp:login' %}" class="submit">Вход</a>
+            <input class="submit" type="submit" value="Регистрация">
+        </div>
+    </form>
 {% endblock %}
 
