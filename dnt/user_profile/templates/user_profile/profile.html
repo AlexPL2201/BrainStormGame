@@ -1,5 +1,4 @@
 
-
 {% block content %}
 <div class="container_auth">
 
@@ -15,21 +14,11 @@
     <h2 class="auth_h1">Уровень: {{ user.level }}</h2>
 </div>
 
- <h1>Мои игры:</h1>
-  {% if games %}
-    <ul>
-      {% for game in games %}
-        <li>{{ user.game.type }} - {{ user.game.started }}</li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Игры не найдены.</p>
-  {% endif %}
-
-<a href="{% url 'user_profile:user_list' %}"><h2>Список всех игроков</h2></a>
 <a href="{% url 'user_profile:leaderboard' %}"><h2>Пятёрка лидеров</h2></a>
  <a href="{% url 'user_profile:friends' %}" class="auth_link"><h2>Список друзей</h2></a>
-{% endblock %}
+<a href="{% url 'user_profile:search_friends' %}"><h2>Поиск друзей</h2></a>
+<a href="{% url 'user_profile:games_list' %}"><h2>Мои игры</h2></a>
+
 
 <h2><a href="{% url 'auth:logout' %}">Выйти</a></h2>
-
+{% endblock %}
