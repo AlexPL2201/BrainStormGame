@@ -69,18 +69,30 @@ def manage_friends(request):
     return render(request, 'user_profile/manage_friends.html', context)
 
 
-@login_required
-def my_games(request):
-    user = request.user
-    obj = Game.objects.filter(players=user).order_by('-started')    # all() == filter(players=user).order_by('-started')
-    games = [x for x in obj if str(user.pk) in x.players]
-    context = {
-        'user': user,
-        'games': games,
-    }
-    return render(request, 'user_profile/profile.html', context)
+# @login_required
+# def my_games(request):
+#     user = request.user
+#     objs = Game.objects.filter(players=user).order_by('-started')  # all() == filter(players=user).order_by('-started')
+#     games = [x for x in objs if str(user.pk) in x.players]
+#     context = {
+#         'user': user,
+#         'games': games,
+#     }
+#     return render(request, 'user_profile/profile.html', context)
 
 
 def leaderboard(request):
     players = AuthUser.objects.order_by('-current_experience')[:5]
     return render(request, 'user_profile/leaderboard.html', {'players': players})
+
+
+@login_required
+def my_games(request):
+    user = request.user
+    obj = Game.objects.all()
+    games = [x for x in obj if str(user.pk) in x.players]
+    context = {
+        'user': user,
+        'games': games,
+    }
+    return render(request, 'user_profile/games_list.html', context)

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Games List</title>
+</head>
+<body>
+    <h1>Мои игры:</h1>
+  {% if games %}
+    <ul>
+      {% for game in games %}
+        <li> Тип игры:{{ game.type }}, Начало игры:{{ game.started }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Игры не найдены.</p>
+  {% endif %}
+<h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
+</body>
+</html>
