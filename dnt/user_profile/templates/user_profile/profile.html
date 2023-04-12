@@ -1,8 +1,22 @@
+{% extends "main/base.html" %}
+{% load static %}
 
-{% block content %}
+{% block title %}
+    Профиль
+{% endblock %}
+
+{% block body %}
+    {% include "main/includes/inc-info.html" %}
+
+
 <div class="container_auth">
 
     <h1>Профиль игрока.</h1>
+    {% if user.avatar %}
+        <img src="{{ user.avatar.url }}" alt="" width="20%">
+    {% else %}
+        <img src="{{ DEFAULT_AVATAR_URL }}avatar_rMO7Sgc.jpg" alt="" width="20%">
+    {% endif %}
     <h2 class="auth_h1">Ник: {{ user.username }}</h2>
     <h2 class="auth_h1">Дата рождения: {{ user.birthdate }}</h2>
     {% if user.email == '' %}
@@ -12,6 +26,8 @@
     {% endif %}
     <h2 class="auth_h1">Опыт текущего уровня: {{ user.current_experience }}</h2>
     <h2 class="auth_h1">Уровень: {{ user.level }}</h2>
+
+
 </div>
 
 <a href="{% url 'user_profile:leaderboard' %}"><h2>Пятёрка лидеров</h2></a>
