@@ -1,8 +1,11 @@
-{% extends 'authapp/base.html' %}
-{% load static %}
+{% extends 'main/base.html' %}
 
-{% block content %}
-<form action="{% url 'auth:edit' %}" class="auth_form" method="post" enctype="multipart/form-data">
+{% block title %}
+    {{ title|title }}
+{% endblock %}
+
+{% block body %}
+<form action="{% url 'auth:edit' %}" class="form_settings" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <h1 class="auth_h1">Edit</h1>
     {% for field in edit_form %}
@@ -19,6 +22,5 @@
     {% endfor %}
     <input type="submit" class="auth_button" value="Save">
 </form>
-<a href="{% url 'user_profile:profile' pk=user.pk %}" class="auth_link">Back</a>
 {% endblock %}
 
