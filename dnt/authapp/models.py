@@ -62,3 +62,6 @@ class Remark(models.Model):
 
     class Meta:
         unique_together = ('question', 'author',)
+
+    def __str__(self):
+        return f'#{self.text} {self.rating}'
