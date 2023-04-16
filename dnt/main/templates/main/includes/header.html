@@ -28,7 +28,7 @@
             <div class="header_friends_button">
                 Друзья
                 <div class="header_friends_block">
-                    <a href="{% url 'user_profile:manage_friends' %}" class="header_friends_add">Добавить друга</a>
+                    <a href="{% url 'user_profile:search_friends' %}" class="header_friends_add">Добавить друга</a>
                     {% for friend in request.user.get_friends %}
                     <div class="header_friend">{{ friend.nickname }}
                         <div class="header_friend_icons"><img src="{% static 'img/chat_open_icon.png' %}" alt="chat" class="header_friend_icon header_friend_chat" id="chat_friend_{{ friend.pk }}">
