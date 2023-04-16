@@ -1,14 +1,20 @@
+{% extends "main/base.html" %}
+{% load static %}
 
+{% block title %}
+    Список друзей
+{% endblock %}
 
-{% block content %}
+{% block body %}
+    {% include "main/includes/inc-info.html" %}
   <h1>Список друзей</h1>
-  <ul>
+  <ol>
         {% for friend in friends %}
             <li>Имя-{{ friend.username }} Дата рождения-({{ friend.birthdate}})  Уровень-{{friend.level}}</li>
         {% empty %}
             <li>Вы не добавили еще ни одного друга</li>
         {% endfor %}
-  </ul>
+  </ol>
 <h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
 {% endblock %}
 

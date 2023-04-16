@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Добавление вопроса</title>
-</head>
-<body>
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}
+    Добавить вопрос
+{% endblock %}
+
+{% block body %}
     {% include 'questions/includes/messages.html' %}
     <h1>Добавить вопрос</h1>
         <form method="post" enctype="multipart/form-data">
@@ -45,17 +45,16 @@
                 </button>
             </p>
         </form>
-{% block js %}
-<script>
-        $(document).ready(function () {
-            {% if messages %}
-                // Toasts
-                $(".toast").toast({ delay: 5000 });
-                $(".toast").toast("show");
-            {% endif %}
-        });
+    {% block js %}
+    <script>
+            $(document).ready(function () {
+                {% if messages %}
+                    // Toasts
+                    $(".toast").toast({ delay: 5000 });
+                    $(".toast").toast("show");
+                {% endif %}
+            });
 
-</script>
+    </script>
+    {% endblock %}
 {% endblock %}
-</body>
-</html>
