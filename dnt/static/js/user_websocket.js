@@ -19,8 +19,7 @@ window.addEventListener('load', () => {
         if(action == 'invitation') {
             sender = data['sender'];
             $('.lobby_invitation_nickname').html(`Принять приглашение от ${sender['nickname']}`);
-            $('.lobby_invitation_accept').css('display', 'inline');
-            $('.lobby_invitation_reject').css('display', 'inline');
+            $('.lobby_invitation_block').css('display', 'flex');
         } else if(action == 'queue') {
             // необходимые изменения интерфейса
             $('.lobby_start_game_span').html('Отменить поиск');
@@ -32,9 +31,17 @@ window.addEventListener('load', () => {
         } else if(action == 'cancel_queue') {
             cancel_queue(false);
         } else if(action == 'player_quit') {
+            current_players -= 1;
             $(`#user_${data['quitter_pk']}`).remove();
-            $('.lobby_invite_block').css('display', '');
-            $('.lobby_invite_block').append(`<span class="lobby_invite_friend" id="friend_${data['quitter_pk']}">${data['quitter_nickname']}</span>`);
+            $(`#invite_friend_${data['quitter_pk']}`).addClass('header_friend_invite');
+            $(`#invite_friend_${data['quitter_pk']}`).removeClass('header_friend_invited');
+            $('.header_friend_invite').css('display', '');
+            let blank_string = '<div class="lobby_player_blank"></div>';
+            if(current_players % 2 == 1) {
+                $('.lobby_the_player').before(blank_string);
+            } else {
+                $('.lobby_the_player').after(blank_string);
+            }
             if(data['lobby_leader'] && data['new_leader_pk'] == user_id) {
                 $('.lobby_start_game_span').addClass('lobby_start_game_button');
                 $('.lobby_start_game_span').removeClass('lobby_start_game_span');
@@ -45,19 +52,28 @@ window.addEventListener('load', () => {
                 $('#mode_ranked').css('display', '');
             };
         } else if(action == 'player_join') {
-            $(`#friend_${data['joiner_pk']}`).remove();
-            $('.lobby_users').append(`<p id='user_${data["joiner_pk"]}'>${data['joiner_nickname']}</p>`);
+            current_players += 1;
+            $(`#invite_friend_${data['quitter_pk']}`).removeClass('header_friend_invite');
+            $(`#invite_friend_${data['quitter_pk']}`).addClass('header_friend_invited');
+            let player_string = `<div id='user_${data["joiner_pk"]}' class="lobby_player_block">${data['joiner_nickname']}</div>`;
+            if(current_players % 2 == 1) {
+                $('.lobby_players_block>div:first-child').remove();
+                $('.lobby_the_player').before(player_string);
+            } else {
+                $('.lobby_players_block>div:last-child').remove();
+                $('.lobby_the_player').after(player_string);
+            }
             $('#mode_ranked').css('display', 'none');
             if(data['last_place']) {
-                $('.lobby_invite_block').css('display', 'none');
+                $('.header_friend_invite').css('display', 'none');
             };
         } else if(action == 'add_theme') {
-            let html_string = '<select class="lobby_theme">';
+            let html_string = '<span>Выберите тему для игры:</span><select class="lobby_theme">';
             for (let theme of data['themes']) {
                 html_string += `<option value='${theme[0]}'>${theme[0]}</option>`
             };
             html_string += '</select>';
-            $('body').append(html_string);
+            $('.lobby_mode').append(html_string);
         } else if(action == 'delete_theme') {
             $('.lobby_theme').remove();
         }
@@ -74,4 +90,43 @@ window.addEventListener('load', () => {
         console.log('error')
         console.log(e)
     }
+
+    $(document).on('click', '.header_friends_button', (event) => {
+        if ($('.header_friends_block').css('display') == 'none') {
+            $('.header_friends_block').css('display', 'flex');
+        } else if (event.target.classList[0] == 'header_friends_button') {
+            $('.header_friends_block').css('display', '');
+        }   
+    })
+
+    $(document).on('click', '.lobby_invitation_accept', () => {
+        $.ajax({
+            method: "get",
+            url: "/games/join_lobby_ajax/",
+            data: {sender_id: sender['pk']},
+            success: (data) => {
+                userSocket.send(
+                    JSON.stringify({'message': {'action': 'accept'}})
+                );
+                if(data != 'full') {
+                    window.location.href = data['url'];
+                } else {
+                    sender = undefined;
+                    $('.lobby_invitation_nickname').html('');
+                    $('.lobby_invitation_block').css('display', 'none');
+                };
+            },
+            error: (data) => {
+            }
+        });
+    });
+
+    $(document).on('click', '.lobby_invitation_reject', () => {
+        sender = undefined;
+        $('.lobby_invitation_nickname').html('');
+        $('.lobby_invitation_block').css('display', '');
+        userSocket.send(
+            JSON.stringify({'message': {'action': 'reject'}})
+        );
+    });
 });

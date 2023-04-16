@@ -56,16 +56,8 @@ h6 {
 
 a, a:hover {
       outline: none;
-      text-decoration: underline;
-      color: #F05A00;}
-}
-
-a:hover {
       text-decoration: none;
-}
-
-a:visited {
-      color: #9C27B0;
+      color: #F05A00;
 }
 
 .left {
@@ -179,7 +171,15 @@ ol li {
       color: #FFF;
       text-transform: uppercase;
       letter-spacing: 0.1em;
+      display: flex;
+      justify-content: space-around;
+      position: relative;
 }
+
+#delimiter > a {
+      color: #FFF;
+}
+
 ul#menu, ul#menu li {
       float: left;
       margin: 0;
@@ -274,11 +274,6 @@ ul#menu li.selected a:hover {
       margin: 0 0 6px 0;
       padding: 0 0 4px 25px;
       line-height: 1.5em;
-}
-
-#index-content a, a:hover {
-      text-decoration: underline;
-      color: #A4AA04;
 }
 
 #index-content a:hover {
@@ -413,5 +408,65 @@ table tr td {
 }
 
 .lobby_invitation_block {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      right: 0;
+      width: 100%;
+      box-sizing: border-box;
+      justify-content: space-around;
+      padding: 5px 0;
+      background-color: white;
+      color: black;
+}
+
+.lobby_invitation_accept, .lobby_invitation_reject {
+      cursor: pointer;
+}
+
+.header_friends_button {
+      position: relative;
+      cursor: pointer;
+}
+
+.header_friends_block {
+      display: none;
+      flex-direction: column;
+      width: 150px;
+      position: absolute;
+      top: 100%;
+      left: -50px;
+      color: white;
+      background-color: #F79F00;
+      text-transform: none;
+      cursor: default;
+      z-index: 2;
+}
+
+.header_friends_add {
+      padding: 5px;
+      color: white;
+}
+
+.header_friend {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px;
+      border-top: 1px solid gray;
+}
+
+.header_friend_icons {
+      display: flex;
+      align-items: center;
+}
+
+.header_friend_icon {
+      width: 15px;
+      margin-left: 5px;
+      cursor: pointer;
+}
+
+.header_friend_invite {
       display: none;
 }
