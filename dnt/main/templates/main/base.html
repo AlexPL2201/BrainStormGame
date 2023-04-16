@@ -7,17 +7,18 @@
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="{% static 'css/style.css'%}">
         {% block style %}{% endblock %}
-        {% block js %}{% endblock %}
+        <script>
+            var user_id = {{ request.user.pk|safe }};
+        </script>
+        <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+        {% block js_first %}{% endblock %}
+        <script src="{% static 'js/user_websocket.js' %}"></script>
+        {% block js_second %}{% endblock %}
     </head>
     <body>
         {% block header %}
             {% include "main/includes/header.html" %}
         {% endblock %}
-        <div class="lobby_invitation_block">
-            <span class="lobby_invitation_nickname"></span>
-            <span class="lobby_invitation_accept">Принять</span>
-            <span class="lobby_invitation_reject">Отклонить</span>
-        </div>
         <div id="site_content">
             {% block body %}{% endblock %}
         </div>

@@ -1,3 +1,5 @@
+{% load static %}
+
 <div id="main">
     <div id="header">
         <div id="logo">
@@ -7,18 +9,34 @@
             </div>
         </div>
         <div id="delimiter">
+            <div class="lobby_invitation_block">
+                <span class="lobby_invitation_nickname"></span>
+                <span class="lobby_invitation_accept">Принять</span>
+                <span class="lobby_invitation_reject">Отклонить</span>
+            </div>
             {% if not request.user.is_authenticated %}
             <a href="{% url 'auth:login' %}">Войти</a>
             <a href="{% url 'auth:register' %}">Зарегистрироваться</a>
             {% else %}
             <a href="{% url 'auth:logout' %}">Выйти</a>
             <a href="{% url 'user_profile:profile' pk=user.pk %}">Просмотр профиля</a>
-            <a href="{% url 'auth:edit' %}">Редактировать профиль</a>
             {% endif %}
             {% if request.user.is_authenticated and request.user.current_game %}
             <a href="{% url 'games:game' %}">Продолжить игру</a>
             {% elif request.user.is_authenticated %}
             <a href="{% url 'games:lobby' %}">Играть</a>
+            <div class="header_friends_button">
+                Друзья
+                <div class="header_friends_block">
+                    <a href="{% url 'user_profile:manage_friends' %}" class="header_friends_add">Добавить друга</a>
+                    {% for friend in request.user.get_friends %}
+                    <div class="header_friend">{{ friend.nickname }}
+                        <div class="header_friend_icons"><img src="{% static 'img/chat_open_icon.png' %}" alt="chat" class="header_friend_icon header_friend_chat" id="chat_friend_{{ friend.pk }}">
+                        <img src="{% static 'img/invite_icon.webp' %}" alt="invite" class="header_friend_icon header_friend_invite" id="invite_friend_{{ friend.pk }}"></div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
             {% endif %}
             {% if request.user.is_moderator %}
             <a href="{% url 'quest:quest' %}">Модерация вопросов</a>
