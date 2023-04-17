@@ -2,19 +2,39 @@
 {% load static %}
 
 {% block title %}
-    Список друзей
+    Список друзей:
 {% endblock %}
 
 {% block body %}
     {% include "main/includes/inc-info.html" %}
-  <h1>Список друзей</h1>
-  <ol>
+
+<h1>Список друзей</h1>
+    <body>
+    <table>
+  <thead>
+    <tr>
+      <th>Никнейм</th>
+      <th>Дата рождения</th>
+      <th>Уровень игрока</th>
+        <th>Email</th>
+    </tr>
+  </thead>
+  <tbody>
+
         {% for friend in friends %}
-            <li>Имя-{{ friend.username }} Дата рождения-({{ friend.birthdate}})  Уровень-{{friend.level}}</li>
+      <tr>
+        <td>{{ friend.username }}</td>
+        <td>{{ friend.birthdate }}</td>
+        <td>{{ friend.level }}</td>
+        <td>{{ friend.email }}</td>
+      </tr>
+
         {% empty %}
             <li>Вы не добавили еще ни одного друга</li>
         {% endfor %}
-  </ol>
+      </tbody>
+</table>
+
 <h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
 {% endblock %}
 
