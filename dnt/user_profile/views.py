@@ -48,7 +48,7 @@ def manage_friends(request):
     friend_username = request.POST.get('friend_username')
 
     if query:
-        results = AuthUser.objects.filter(username__icontains=query)
+        results = AuthUser.objects.filter(username__icontains=query).exclude(username=user)
     else:
         results = None
 
@@ -82,7 +82,7 @@ def manage_friends(request):
 
 
 def leaderboard(request):
-    players = AuthUser.objects.order_by('-current_experience')[:5]
+    players = AuthUser.objects.order_by('-level', '-current_experience')[:5]
     return render(request, 'user_profile/leaderboard.html', {'players': players})
 
 

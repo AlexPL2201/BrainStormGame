@@ -23,6 +23,7 @@ def load_messages(request):
     elif type_ == 'game':
         pass
 
+
 def create_messages(request):
     button_message = request.GET.get('message')
     receiver_pk = int(request.GET.get('receiver'))
