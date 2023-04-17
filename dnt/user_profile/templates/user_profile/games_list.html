@@ -7,7 +7,6 @@
 
 {% block body %}
     {% include "main/includes/inc-info.html" %}
-<body>
     <h1>Мои игры:</h1>
   {% if games %}
     <ol>
@@ -19,6 +18,5 @@
     <p>Игры не найдены.</p>
   {% endif %}
 <h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
-</body>
 {% endblock %}
 
