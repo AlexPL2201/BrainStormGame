@@ -59,18 +59,23 @@
             {% endfor %}
         </div>
         <div class="lobby_bottom">
-            <div class="lobby_lobby_chat">
-
-            </div>
             <div class="lobby_start_block">
                 <span class="{% if user.is_lobby_leader %}lobby_start_game_button{% else %}lobby_start_game_span{% endif %}">Начать игру</span>
                 <div class="lobby_countdown_block">
                     <span id="min"></span>:<span id="sec"></span>
                 </div>
             </div>
-            <div class="lobby_friend_chat">
-
-            </div>
         </div>
+    </div>
+    <span class="lobby_chat_open">Открыть чат лобби</span>
+    <div class="lobby_chat_block">
+        <div class="lobby_chat_top">
+            <span class="lobby_chat_name">Чат лобби</span>
+            <span class="lobby_chat_close">Х</span>
+        </div>
+        <div class="lobby_chat_messages">
+    
+        </div>
+        <textarea class="lobby_chat_textarea" placeholder="Введите текст сообщения"></textarea>
     </div>
 {% endblock %}

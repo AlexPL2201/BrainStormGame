@@ -129,4 +129,14 @@ window.addEventListener('load', () => {
             JSON.stringify({'message': {'action': 'reject'}})
         );
     });
+
+    $('.friend_chat_close').on('click', () => {
+        $('.friend_chat_block').css('display', '');
+    });
+
+    $('.header_friend_chat').on('click', () => {
+        $('.friend_chat_block').css('display', 'flex');
+
+        // $('.friend_chat_name').html();
+    });
 });
