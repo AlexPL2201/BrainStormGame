@@ -1,0 +1,260 @@
+#site_content {
+    padding: 0 10px;
+    width: 877px;
+}
+
+.lobby_content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    height: calc(100vh - 302px);
+    position: relative;
+}
+
+.lobby_mode {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    display: flex;
+    align-items: center;
+    z-index: 1;
+}
+
+.lobby_mode > span {
+    margin-right: 5px;
+}
+
+.lobby_mode > select {
+    margin-right: 10px;
+    border: 1px solid #F79F00;
+    background-color: white;
+}
+
+.lobby_invitation_rejected {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.lobby_players_block {
+    display: flex;
+    justify-content: space-around;
+    height: 100%;
+    padding-bottom: 50px;
+    box-sizing: border-box;
+}
+
+.lobby_player_block {
+    height: 100%;
+    width: 150px;
+    border: 1px solid #F79F00;
+    border-top: none;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.lobby_player_blank {
+    height: 100%;
+    width: 150px;
+    border: 1px solid gray;
+    border-top: none;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.lobby_bottom {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.lobby_start_block {
+    position: relative;
+    color: #F79F00;
+}
+
+.lobby_start_game_button, .lobby_cancel_queue_button {
+    cursor: pointer;
+}
+
+.lobby_start_game_span {
+    color: gray;
+}
+
+.lobby_countdown_block {
+    position: absolute;
+    top: 0;
+    left: 110%;
+    display: none;
+}
+
+.lobby_accept_request_bg {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #A6A6A6;
+    opacity: 0.8;
+    z-index: 2;
+}
+
+.lobby_accept_request_button {
+    width: 300px;
+    height: 300px;
+    border-radius: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border: 5px solid #F79F00;
+    text-transform: uppercase;
+}
+
+.lobby_accept_request_button > span {
+    border: 2px solid #F79F00;
+    padding: 5px;
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+}
+
+.header_friend_invite {
+    display: block;
+}
+
+.header_friend_invited {
+    display: none;
+}
+
+.game_content {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.game_themes > span {
+    margin-right: 10px;
+}
+
+.game_questions_block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game_question {
+    text-align: center;
+}
+
+.game_answers_block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+}
+
+.game_answer {
+    width: 300px;
+    text-align: center;
+    cursor: pointer;
+    padding: 5px 10px;
+    margin-top: 5px;
+}
+
+.game_answer_button {
+    background-color: #F79F00;
+    padding: 3px 7px;
+    cursor: pointer;
+    visibility: hidden;
+}
+
+.game_bottom {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.results_score_first > td {
+    background-color: #ffd700;
+    font-size: 24px;
+}
+
+.results_score_second > td {
+    background-color: #c0c0c0;
+    font-size: 20px;
+}
+
+.results_score_third > td {
+    background-color: #b08d57;
+    font-size: 16px;
+}
+
+.game_chat_block, .lobby_chat_block {
+    position: fixed;
+    bottom: 5px;
+    left: 5px;
+    height: 200px;
+    width: 300px;
+    display: none;
+    flex-direction: column;
+    background-color: white;
+    border: 1px solid #F79F00;
+}
+
+.game_chat_top, .lobby_chat_top {
+    padding: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border-bottom: 1px solid #F79F00;
+    box-sizing: border-box;
+}
+
+.game_chat_messages, .lobby_chat_messages {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.game_chat_textarea, .lobby_chat_textarea {
+    width: 100%;
+    height: 40px;
+    border: none;
+    border-top: 1px solid #F79F00;
+    box-sizing: border-box;
+}
+
+.lobby_chat_open, .game_chat_open {
+    padding: 3px;
+    border: 1px solid #F79F00;
+    position: fixed;
+    left: 5px;
+    bottom: 5px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.lobby_chat_close, .game_chat_close {
+    cursor: pointer;
+}

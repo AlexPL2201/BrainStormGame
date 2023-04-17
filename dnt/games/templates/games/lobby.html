@@ -1,11 +1,11 @@
+{% extends "main/base.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+{% block title %}Игровое лобби{% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/games_style.css'%}">
+{% endblock %}
+{% block js_first %}
     <script>
         var userSocket, queueSocket, sender, interval, queue_id;
         var sec = 0;
@@ -14,46 +14,68 @@
         var is_last_player = false;
         var accepted = false;
         var max_players = {{ max_players|safe }};
-        var user_id = {{ user.pk|safe }};
+        var current_players = 1;
         var themes = [];
     </script>
     <script src="{% static 'js/queue_functions.js' %}"></script>
-    <script src="{% static 'js/user_websocket.js' %}"></script>
+{% endblock %}
+{% block js_second %}
     <script src="{% static 'js/queue.js' %}"></script>
-</head>
-<body>
-<span class="lobby_invitation_rejected" style="display: none;">Ваше приглашение отклонено</span>
-<span class="lobby_invitation_nickname"></span>
-<span class="lobby_invitation_accept" style="display: none;">Принять</span>
-<span class="lobby_invitation_reject" style="display: none;">Отклонить</span>
-<span class="{% if user.is_lobby_leader %}lobby_start_game_button{% else %}lobby_start_game_span{% endif %}">Начать игру</span>
-<span id="min"></span>:<span id="sec"></span>
-<div class="lobby_users">
-    <p>{{ user.nickname }}</p>
-    {% if users %}
-        {% for u in users %}
-            <p id="user_{{ u.pk }}">{{ u.nickname }}</p>
-        {% endfor %}
-    {% endif %}
-</div>
-<p>{{ user.current_lobby.pk }}</p>
-<select class="lobby_change_mode" {% if not user.is_lobby_leader %}style="display: none;"{% endif %}>
-    {% for mode in modes %}
-        <option id="mode_{{ mode.0 }}" value="{{ mode.0 }}">{{ mode.1 }}</option>
-    {% endfor %}
-</select>
-<p class="lobby_invite_button">Пригласить друга</p>
-<div class="lobby_invite_block">
-    {% for friend in friends %}
-        <span class="lobby_invite_friend" id="friend_{{ friend.pk }}">{{ friend.nickname }}</span>
-    {% endfor %}
-</div>
-{% if theme %}
-<select class="lobby_theme">
-    {% for name in themes %}
-        <option value='{{ name.0 }}'>{{ name.0 }}</option>
-    {% endfor %}
-</select>
-{% endif %}
-</body>
-</html>
+{% endblock %}
+{% block body %}
+    <div class="lobby_content">
+        <div class="lobby_mode">
+            <span {% if not user.is_lobby_leader %}style="display: none;"{% endif %}>Режим игры:</span>
+            <select class="lobby_change_mode" {% if not user.is_lobby_leader %}style="display: none;"{% endif %}>
+                {% for mode in modes %}
+                    <option id="mode_{{ mode.0 }}" value="{{ mode.0 }}">{{ mode.1 }}</option>
+                {% endfor %}
+            </select>
+            {% if theme %}
+                <span>Выберите тему для игры:</span>
+                <select class="lobby_theme">
+                    {% for name in themes %}
+                        <option value='{{ name.0 }}'>{{ name.0 }}</option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+        </div>
+        <span class="lobby_invitation_rejected" style="display: none;">Ваше приглашение отклонено</span>
+        <div class="lobby_players_block">
+            {% for b in blanks_left %}
+                <div class="lobby_player_blank"></div>
+            {% endfor %}
+            {% for u in users_left %}
+                <div id="user_{{ u.pk }}" class="lobby_player_block">{{ u.nickname }}</div>
+            {% endfor %}
+            <div class="lobby_player_block lobby_the_player">
+                <span>{{ user.nickname }}</span>
+            </div>
+            {% for u in users_right %}
+                <div id="user_{{ u.pk }}" class="lobby_player_block">{{ u.nickname }}</div>
+            {% endfor %}
+            {% for b in blanks_right %}
+                <div class="lobby_player_blank"></div>
+            {% endfor %}
+        </div>
+        <div class="lobby_bottom">
+            <div class="lobby_start_block">
+                <span class="{% if user.is_lobby_leader %}lobby_start_game_button{% else %}lobby_start_game_span{% endif %}">Начать игру</span>
+                <div class="lobby_countdown_block">
+                    <span id="min"></span>:<span id="sec"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <span class="lobby_chat_open">Открыть чат лобби</span>
+    <div class="lobby_chat_block">
+        <div class="lobby_chat_top">
+            <span class="lobby_chat_name">Чат лобби</span>
+            <span class="lobby_chat_close">Х</span>
+        </div>
+        <div class="lobby_chat_messages">
+    
+        </div>
+        <textarea class="lobby_chat_textarea" placeholder="Введите текст сообщения"></textarea>
+    </div>
+{% endblock %}

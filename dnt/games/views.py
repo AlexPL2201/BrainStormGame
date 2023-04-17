@@ -33,13 +33,16 @@ def create_lobby(request):
         'user': current_user,
         'modes': Game.types,
         'max_players': GAME_MAX_PLAYERS,
-        'users': '',
-        'friends': AuthUser.objects.filter(pk__in=current_user.friends.values_list('pk'))
+        'users_left': [],
+        'users_right': [],
+        'blanks_left': range(math.floor((GAME_MAX_PLAYERS - 1) / 2)),
+        'blanks_right': range(math.ceil((GAME_MAX_PLAYERS - 1) / 2)),
     }
+
     return render(request, 'games/lobby.html', context=context)
 
 
-def join_lobby(request):
+def join_lobby_ajax(request):
 
     sender = AuthUser.objects.get(pk=int(request.GET.get('sender_id')))
     lobby = Lobby.objects.get(pk=sender.current_lobby.pk)
@@ -49,7 +52,7 @@ def join_lobby(request):
         current_user.current_lobby = lobby
         current_user.is_lobby_leader = False
         current_user.save()
-        friends = [x[0] for x in current_user.friends.values_list('pk') if x not in [player.pk for player in lobby.players.all()]]
+        # friends = [x[0] for x in current_user.friends.values_list('pk') if x not in [player.pk for player in lobby.players.all()]]
 
         last_place = True if current_user.current_lobby.players_count == GAME_MAX_PLAYERS else False
         data = {'action': 'player_join', 'joiner_pk': current_user.pk, 'joiner_nickname': current_user.nickname,
@@ -58,23 +61,35 @@ def join_lobby(request):
         for user in AuthUser.objects.filter(current_lobby=current_user.current_lobby).exclude(pk=current_user.pk):
             async_to_sync(layer.group_send)(f'user_{user.pk}', {'type': 'send_message', 'message': data})
 
-        theme = True if eval(lobby.type)[0] == 'theme' else False
-
-        context = {
-            'title': 'Игровое лобби',
-            'user': current_user,
-            'modes': Game.types,
-            'max_players': GAME_MAX_PLAYERS,
-            'users': AuthUser.objects.filter(current_lobby=lobby).exclude(pk=current_user.pk),
-            'friends': friends,
-            'theme': theme,
-            'themes': Category.objects.all().values_list('name')
-        }
-
-        return HttpResponse(render_to_string('games/lobby.html', context=context))
+        return JsonResponse({'status': 'ok', 'url': 'http://' + request.META['HTTP_HOST'] + '/games/join_lobby/'})
     else:
-        return HttpResponse('full')
+        return JsonResponse({'status': 'full'})
+    
 
+def join_lobby(request):
+
+    current_user = request.user
+    current_lobby = current_user.current_lobby
+
+    theme = True if eval(current_lobby.type)[0] == 'theme' else False
+
+    users_left = [j for i, j in enumerate(AuthUser.objects.filter(current_lobby=current_lobby).exclude(pk=current_user.pk)) if (i + 1) % 2 == 0]
+    users_right = [j for i, j in enumerate(AuthUser.objects.filter(current_lobby=current_lobby).exclude(pk=current_user.pk)) if (i + 1) % 2 == 1]
+
+    context = {
+        'title': 'Игровое лобби',
+        'user': current_user,
+        'modes': Game.types,
+        'max_players': GAME_MAX_PLAYERS,
+        'users_left': users_left,
+        'users_right': users_right,
+        'blanks_left': range(math.floor((GAME_MAX_PLAYERS - 1) / 2) - len(users_left)),
+        'blanks_right': range(math.ceil((GAME_MAX_PLAYERS - 1) / 2) - len(users_right)),
+        'theme': theme,
+        'themes': Category.objects.all().values_list('name')
+    }
+
+    return render(request, 'games/lobby.html', context=context)
 
 def change_game_mode(request):
 
@@ -175,7 +190,7 @@ def quit_lobby(request):
     current_user = request.user
 
     # если пользователь в лобби один, лобби удаляется, если нет - лобби убирается из current_lobby объекта пользователя
-    if current_user.current_lobby and current_user.current_lobby.players_count == 1:
+    if current_user.current_lobby is not None and current_user.current_lobby.players_count == 1:
         current_user.current_lobby.delete()
     elif current_user.current_lobby is not None:
         data = {'action': 'player_quit', 'quitter_pk': current_user.pk, 'quitter_nickname': current_user.nickname,

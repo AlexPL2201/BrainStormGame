@@ -12,8 +12,6 @@
 <a href="{% url 'auth:logout' %}">Выйти</a>
 <a href="{% url 'user_profile:profile' pk=user.pk %}">Просмотр профиля</a>
 <a href="{% url 'auth:edit' %}">Редактировать профиль</a>
-
-
 {% endif %}
 {% if request.user.is_authenticated and request.user.current_game %}
 <a href="{% url 'games:game' %}">Продолжить игру</a>

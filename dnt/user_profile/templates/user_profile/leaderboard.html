@@ -1,10 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Rating</title>
-</head>
-<body>
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}
+    Профиль
+{% endblock %}
+
+{% block body %}
+    {% include "main/includes/inc-info.html" %}
     <table>
   <thead>
     <tr>
@@ -23,7 +25,6 @@
     {% endfor %}
   </tbody>
 </table>
-</body>
-</html>
-
+<h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
+{% endblock %}
 
