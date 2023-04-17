@@ -113,4 +113,12 @@ window.addEventListener('load', () => {
         notificationSocket.close();
     });
 
+    $('.game_chat_close').on('click', () => {
+        $('.game_chat_block').css('display', '');
+    });
+
+    $('.game_chat_open').on('click', () => {
+        $('.game_chat_block').css('display', 'flex');
+    });
+
 });

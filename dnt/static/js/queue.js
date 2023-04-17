@@ -117,4 +117,11 @@ window.addEventListener('load', () => {
         quit_lobby();
     });
 
+    $('.lobby_chat_close').on('click', () => {
+        $('.lobby_chat_block').css('display', '');
+    });
+
+    $('.lobby_chat_open').on('click', () => {
+        $('.lobby_chat_block').css('display', 'flex');
+    });
 });

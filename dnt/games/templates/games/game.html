@@ -26,9 +26,6 @@
         <button class="game_answer_button">Ответить</button>
     </div>
     <div class="game_bottom">
-        <div class="game_game_chat">
-
-        </div>
         <table class="game_score_block">
             {% for user in users %}
                 <tr class="game_score_subblock" id="score_{{ user.pk }}">
@@ -37,9 +34,17 @@
                 </tr>
             {% endfor %}
         </table>
-        <div class="game_friend_chat">
-
-        </div>
     </div>
+</div>
+<span class="game_chat_open">Открыть игровой чат</span>
+<div class="game_chat_block">
+    <div class="game_chat_top">
+        <span class="game_chat_name">Игровой чат</span>
+        <span class="game_chat_close">Х</span>
+    </div>
+    <div class="game_chat_messages">
+
+    </div>
+    <textarea class="game_chat_textarea" placeholder="Введите текст сообщения"></textarea>
 </div>
 {% endblock %}

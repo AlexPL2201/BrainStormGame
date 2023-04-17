@@ -96,9 +96,9 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -268,5 +268,78 @@
 .results_score_third > td {
   background-color: #b08d57;
   font-size: 16px;
+}
+
+.game_chat_block, .lobby_chat_block {
+  position: fixed;
+  bottom: 5px;
+  left: 5px;
+  height: 200px;
+  width: 300px;
+  display: none;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  background-color: white;
+  border: 1px solid #F79F00;
+}
+
+.game_chat_top, .lobby_chat_top {
+  padding: 3px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+  border-bottom: 1px solid #F79F00;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.game_chat_messages, .lobby_chat_messages {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: end;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.game_chat_textarea, .lobby_chat_textarea {
+  width: 100%;
+  height: 40px;
+  border: none;
+  border-top: 1px solid #F79F00;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.lobby_chat_open, .game_chat_open {
+  padding: 3px;
+  border: 1px solid #F79F00;
+  position: fixed;
+  left: 5px;
+  bottom: 5px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.lobby_chat_close, .game_chat_close {
+  cursor: pointer;
 }
 /*# sourceMappingURL=games_style.css.map */
