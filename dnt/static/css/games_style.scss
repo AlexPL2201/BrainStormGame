@@ -83,7 +83,7 @@
     color: #F79F00;
 }
 
-.lobby_start_game_button {
+.lobby_start_game_button, .lobby_cancel_queue_button {
     cursor: pointer;
 }
 
@@ -139,4 +139,69 @@
 
 .header_friend_invited {
     display: none;
+}
+
+.game_content {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.game_themes > span {
+    margin-right: 10px;
+}
+
+.game_questions_block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game_question {
+    text-align: center;
+}
+
+.game_answers_block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+}
+
+.game_answer {
+    width: 300px;
+    text-align: center;
+    cursor: pointer;
+    padding: 5px 10px;
+    margin-top: 5px;
+}
+
+.game_answer_button {
+    background-color: #F79F00;
+    padding: 3px 7px;
+    cursor: pointer;
+    visibility: hidden;
+}
+
+.game_bottom {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.results_score_first > td {
+    background-color: #ffd700;
+    font-size: 24px;
+}
+
+.results_score_second > td {
+    background-color: #c0c0c0;
+    font-size: 20px;
+}
+
+.results_score_third > td {
+    background-color: #b08d57;
+    font-size: 16px;
 }

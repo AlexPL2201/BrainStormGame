@@ -53,6 +53,7 @@ window.addEventListener('load', () => {
             // обводка правильного ответа и ответа пользователя, если он не правильный, зелёным и красным соответственно
             $('.chosen_answer').css('border', '1px solid red');
             $(`#answer_${data.correct_answer.id}`).css('border', '1px solid green');
+            $('.game_answer_button').css('visibility', '');
         // переход на страницу с результатами
         } else if(action == 'show_results') {
             window.location.href = data['url'];
@@ -88,6 +89,7 @@ window.addEventListener('load', () => {
     $(document).on('click', '.game_answer', (event) => {
         // если ответ уже отправлен, ничего не происходит
         if(!is_answered) {
+            $('.game_answer_button').css('visibility', 'visible');
             $('.chosen_answer').css('border', '');
             $('.chosen_answer').removeClass('chosen_answer');
             event.target.style.border = '1px solid black';

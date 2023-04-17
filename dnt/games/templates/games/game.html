@@ -1,36 +1,45 @@
+{% extends "main/base.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+{% block title %}Игровое лобби{% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/games_style.css'%}">
+{% endblock %}
+{% block js_second %}
     <script src="{% static 'js/game.js' %}"></script>
-</head>
-<body>
-<h1> {{ request.user.current_game.pk }} </h1>
-{% if themes %}
-<div>
-{% for theme in themes %}
-    <span>{{ theme.0 }}</span>
-{% endfor %}
-</div>
-{% endif %}
-<input type="hidden" value="{{ request.user.current_game.pk }}" id="game_id">
-<input type="hidden" value="{{ request.user.pk }}" id="user_id">
-<div class="game_questions_block">
-    <h3 class="game_question"></h3>
-    <div class="game_answers_block"></div>
-    <button class="game_answer_button">Ответить</button>
-</div>
-<div class="game_score_block">
-    {% for user in users %}
-        <div class="game_score_subblock" id="score_{{ user.pk }}">
-            <span class="game_score_nickname">{{ user.nickname }} </span>
-            <span class="game_score"></span>
-        </div>
+{% endblock %}
+{% block body %}
+<div class="game_content">
+    {% if themes %}
+    <div class="game_themes">
+        <span>Играются следующие темы:</span>
+    {% for theme in themes %}
+        <span>{{ theme.0 }}</span>
     {% endfor %}
+    </div>
+    {% endif %}
+    <input type="hidden" value="{{ request.user.current_game.pk }}" id="game_id">
+    <input type="hidden" value="{{ request.user.pk }}" id="user_id">
+    <div class="game_questions_block">
+        <h3 class="game_question"></h3>
+        <div class="game_answers_block"></div>
+        <button class="game_answer_button">Ответить</button>
+    </div>
+    <div class="game_bottom">
+        <div class="game_game_chat">
+
+        </div>
+        <table class="game_score_block">
+            {% for user in users %}
+                <tr class="game_score_subblock" id="score_{{ user.pk }}">
+                    <td class="game_score_nickname">{{ user.nickname }} </td>
+                    <td class="game_score">0</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div class="game_friend_chat">
+
+        </div>
+    </div>
 </div>
-</body>
-</html>
+{% endblock %}
