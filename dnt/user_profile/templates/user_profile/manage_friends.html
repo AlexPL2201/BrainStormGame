@@ -18,14 +18,14 @@
       {% for friend in results %}
         <li>{{ friend.username }}
           {% if friend in user.friends.all %}
-            <form method="post" action="{% url 'user_profile:manage_friends' %}">
+            <form method="post" action="{% url 'user_profile:search_friends' %}">
               {% csrf_token %}
               <input type="hidden" name="action" value="remove">
               <input type="hidden" name="friend_username" value="{{ friend.username }}">
               <button type="submit">Удалить из друзей</button>
             </form>
           {% else %}
-            <form method="post" action="{% url 'user_profile:manage_friends' %}">
+            <form method="post" action="{% url 'user_profile:search_friends' %}">
               {% csrf_token %}
               <input type="hidden" name="action" value="add">
               <input type="hidden" name="friend_username" value="{{ friend.username }}">
@@ -51,8 +51,6 @@
 {% endif %}
 <h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
 {% endblock %}
-</body>
-</html>
 
 
 

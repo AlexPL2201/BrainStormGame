@@ -7,18 +7,28 @@
 
 {% block body %}
     {% include "main/includes/inc-info.html" %}
-<body>
     <h1>Мои игры:</h1>
+    <table>
+  <thead>
+    <tr>
+      <th>Тип игры</th>
+      <th>Начало игры</th>
+    </tr>
+  </thead>
+  <tbody>
   {% if games %}
-    <ol>
       {% for game in games %}
-        <li> Тип игры: {{ game.type }}, Начало игры: {{ game.started }}</li>
+        <tr>
+        <td>{{ game.type }}</td>
+        <td>{{ game.started }}</td>
+      </tr>
       {% endfor %}
-    </ol>
+   </tbody>
+</table>
+
   {% else %}
     <p>Игры не найдены.</p>
   {% endif %}
 <h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
-</body>
 {% endblock %}
 

@@ -7,27 +7,24 @@
 
 {% block body %}
     {% include "main/includes/inc-info.html" %}
-
-<body>
     <table>
   <thead>
     <tr>
       <th>Никнейм</th>
-      <th>Опыт игрока</th>
       <th>Уровень игрока</th>
+      <th>Опыт игрока</th>
     </tr>
   </thead>
   <tbody>
     {% for player in players %}
       <tr>
         <td>{{ player.username }}</td>
-        <td>{{ player.current_experience }}</td>
         <td>{{ player.level }}</td>
+        <td>{{ player.current_experience }}</td>
       </tr>
     {% endfor %}
   </tbody>
 </table>
 <h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
-</body>
 {% endblock %}
 

@@ -76,3 +76,6 @@ class Game(models.Model):
     @property
     def players(self):
         return list(self.results.keys())
+
+
+

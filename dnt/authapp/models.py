@@ -41,6 +41,10 @@ class AuthUser(AbstractUser):
     current_game = models.ForeignKey(Game, on_delete=models.SET_NULL, null=True, blank=True)
     avatar = models.ImageField(upload_to="users", verbose_name=_("Аватар"), **NULLABLE)
 
+    @property
+    def get_friends(self):
+        return AuthUser.objects.filter(pk__in=self.friends.values_list('pk'))
+
 
 class QuestionRatedByUser(models.Model):
     """
@@ -62,3 +66,6 @@ class Remark(models.Model):
 
     class Meta:
         unique_together = ('question', 'author',)
+
+    def __str__(self):
+        return f'#{self.text} {self.rating}'
