@@ -10,6 +10,7 @@ urlpatterns = [
                   path('', main.index, name='home'),  # todo
                   # path('index/', main.index, name="home"),
                   path('authapp/', include('authapp.urls', namespace='auth')),
+                  path('chat/', include('chat.urls', namespace='chat')),
                   path('custom_admin/', include('custom_admin.urls', namespace='custom_admin')),
                   path('games/', include('games.urls', namespace='games')),
                   path('quest/', include('questions.urls', namespace='quest')),

@@ -76,6 +76,12 @@ window.addEventListener('load', () => {
             $('.lobby_mode').append(html_string);
         } else if(action == 'delete_theme') {
             $('.lobby_theme').remove();
+        } else if(action == 'chat_message') {
+            if (data['message'] == parseInt(user_id)) {
+                $('.friend_chat_messages').append(`<span class='chat-sent'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+            }else{
+                $('.friend_chat_messages').append(`<span class='chat-received'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+            }
         }
     };
 
@@ -96,7 +102,7 @@ window.addEventListener('load', () => {
             $('.header_friends_block').css('display', 'flex');
         } else if (event.target.classList[0] == 'header_friends_button') {
             $('.header_friends_block').css('display', '');
-        }   
+        }
     })
 
     $(document).on('click', '.lobby_invitation_accept', () => {
@@ -134,9 +140,55 @@ window.addEventListener('load', () => {
         $('.friend_chat_block').css('display', '');
     });
 
-    $('.header_friend_chat').on('click', () => {
+    $('.header_friend_chat').on('click', (event) => {
         $('.friend_chat_block').css('display', 'flex');
 
-        // $('.friend_chat_name').html();
+        $('.friend_chat_name').html();
+        let friend_pk = parseInt(event.target.id.replace('chat_friend_', ''));
+        $.ajax({
+            method: "get",
+            url: "/chat/load_messages/",
+            data: {friend_pk: friend_pk, type: 'friend'},
+            success: (data) => {
+                let messages = data['messages'];
+                console.log(messages)
+                let html_string = '';
+                for (let message of messages) {
+                    if (message.sender_id == parseInt(user_id)) {
+                        html_string += `<span class="chat-sent">${message.text}</span>`;
+                    }else{
+                        html_string += `<span class="chat-received">${message.text}</span>`;
+                    }
+                }
+                $('.friend_chat_messages').html(html_string);
+                $('.friend_chat_name').html(data['friend_name']);
+                $('.friend_chat_textarea').attr('id', `textarea_${friend_pk}`);
+            },
+            error: (data) => {
+            }
+        })
     });
+
+
+    $('.friend_chat_textarea').on('keydown', (event) => {
+
+        if (event.keyCode == 13) {
+
+            let reciever_pk = parseInt(event.target.id.replace('textarea_', ''));
+            let chat_message = event.target.value;
+            $.ajax({
+                method: "get",
+                url: "/chat/create_messages/",
+                data: {sender: user_id, receiver: reciever_pk, message: chat_message},
+                success: (data) => {
+
+                },
+                error: (data) => {
+                }
+            })
+        }
+    })
+
+
+
 });
