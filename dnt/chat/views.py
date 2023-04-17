@@ -15,9 +15,9 @@ def load_messages(request):
         friend_pk = int(request.GET.get('friend_pk'))
         friend = AuthUser.objects.get(pk=friend_pk)
         messages = FriendMessage.objects.filter(Q(sender__in=[request.user, friend])
-                                                & Q(receiver__in=[request.user, friend]))
+                                                & Q(receiver__in=[request.user, friend])).order_by('created_at')
         print(messages)
-        return JsonResponse(serializers.serialize('json', messages.order_by('created_at')), safe=False)
+        return JsonResponse({'messages': list(messages.values()), 'friend_name': friend.nickname}, safe=False)
     elif type_ == 'lobby':
         pass
     elif type_ == 'game':
