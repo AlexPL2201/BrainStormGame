@@ -20,7 +20,7 @@
         {% for game in games %}
         <tr>
             <td>{{ game.display_type }}</td>
-            <td>{{ game.started }}</td>
+            <td>{{ game.get_time }}</td>
       </tr>
       {% endfor %}
    </tbody>
