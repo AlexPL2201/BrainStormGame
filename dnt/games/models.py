@@ -76,3 +76,8 @@ class Game(models.Model):
     @property
     def players(self):
         return list(self.results.keys())
+
+    @property
+    def display_type(self):
+        return eval(self.type)[1]
+
