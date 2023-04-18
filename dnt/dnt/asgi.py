@@ -8,13 +8,13 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 django_asgi_app = get_asgi_application()
 
 from channels.auth import AuthMiddlewareStack
-import games.routing
+import games.routing#, chat.routing
 
 application = ProtocolTypeRouter({
     'http': django_asgi_app,
     'websocket': AuthMiddlewareStack(
         URLRouter(
-            games.routing.websocket_urlpatterns
+            games.routing.websocket_urlpatterns #+ chat.routing.websocket_urlpatterns
         )
     )
 })

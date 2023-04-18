@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.core.cache import cache
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, DeleteView, UpdateView, CreateView, DetailView
 
-from authapp.models import Remark, AuthUser
+from authapp.models import Remark, AuthUser, QuestionRatedByUser
 from questions.models import Question, Category, Type, SubType, Answer, QuestionComplaint
 
 
@@ -110,7 +111,9 @@ class GradeQuestionView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        context_data['question_list'] = Question.objects.all()
+        context_data['question_list'] = Question.objects.filter(~Q(pk__in=[x.question.pk for x in Remark.objects.filter(author=self.request.user)]) &
+                                                                Q(is_validated=False)).order_by('?').first()
+        context_data['remark_list'] = Remark.objects.filter(question=context_data['question_list'])
         return context_data
 
     def post(self, request, *args, **kwargs):

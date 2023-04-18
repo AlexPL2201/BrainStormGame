@@ -1,13 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "main/base.html" %}
+{% load static %}
 
+{% block title %}
+    Поиск друзей
+{% endblock %}
 
-{% block content %}
+{% block body %}
+    {% include "main/includes/inc-info.html" %}
   <h1>Поиск друзей</h1>
   <form method="get">
     <input type="text" name="q" placeholder="Search for friends" value="{{ request.GET.q }}">
@@ -19,14 +18,14 @@
       {% for friend in results %}
         <li>{{ friend.username }}
           {% if friend in user.friends.all %}
-            <form method="post" action="{% url 'user_profile:manage_friends' %}">
+            <form method="post" action="{% url 'user_profile:search_friends' %}">
               {% csrf_token %}
               <input type="hidden" name="action" value="remove">
               <input type="hidden" name="friend_username" value="{{ friend.username }}">
               <button type="submit">Удалить из друзей</button>
             </form>
           {% else %}
-            <form method="post" action="{% url 'user_profile:manage_friends' %}">
+            <form method="post" action="{% url 'user_profile:search_friends' %}">
               {% csrf_token %}
               <input type="hidden" name="action" value="add">
               <input type="hidden" name="friend_username" value="{{ friend.username }}">
@@ -52,8 +51,6 @@
 {% endif %}
 <h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
 {% endblock %}
-</body>
-</html>
 
 
 

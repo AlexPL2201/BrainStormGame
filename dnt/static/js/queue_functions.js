@@ -1,15 +1,24 @@
 function start_count() {
-    $('#min').html(min);
-    $('#sec').html(sec);
+    $('.lobby_countdown_block').css('display', 'block');
+    $('#min').html('0' + min);
+    $('#sec').html('0' + sec);
     interval = window.setInterval(() => {
         if(sec == 59) {
             sec = 0;
             min++;
-            $('#min').html(min);
+            if(min < 10) {
+                $('#min').html('0' + min);
+            } else {
+                $('#min').html(min);
+            }
         } else {
             sec++;
         }
-        $('#sec').html(sec);
+        if(sec < 10) {
+            $('#sec').html('0' + sec);
+        } else {
+            $('#sec').html(sec);
+        }
     }, 1000);
 }
 
@@ -34,9 +43,9 @@ function create_queue_socket(queue_id) {
 
         // запрос на подтверждение - создание кнопки и установление таймайта на её исчезновение
         if(action == 'accept_request') {
-            $('body').append('<span class="lobby_accept_request_button">Подтвердить</span>');
+            $('body').append('<div class="lobby_accept_request_bg"><div class="lobby_accept_request_button"><span>Подтвердить</span></div></div>');
             window.setTimeout(() => {
-                $('.lobby_accept_request_button').remove();
+                $('.lobby_accept_request_bg').remove();
                 accept_count = 0;
                 themes = [];
                 if(accepted == false) {
@@ -111,6 +120,7 @@ function cancel_queue(is_canceler) {
     window.clearInterval(interval);
     sec = 0;
     min = 0;
+    $('.lobby_countdown_block').css('display', '');
     $('#sec').html('');
     $('#min').html('');
 

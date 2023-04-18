@@ -1,37 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<div class="row justify-content-center pt-3">
-    <div class="col-md-8 col-lg-6">
-        <h2>Удалить вопрос?</h2>
-        <p>
-            Удалить вопрос:<br>
-            "{{ object.question }}" от {{ object.created_at }}
-        </p>
-        <p>
-        <div class="row">
-            <div class="col-6">
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}
+    Удалить вопрос
+{% endblock %}
 
-                <form action="{% url 'quest:delete_quest' pk=object.pk %}"
-                      method="post">
-                    {% csrf_token %}
-                    <button class="btn btn-danger btn-block"
-                            type="submit">Подтвердить
-                    </button>
-                </form>
+{% block body %}
+    <div class="row justify-content-center pt-3">
+        <div class="col-md-8 col-lg-6">
+            <h2>Удалить вопрос?</h2>
+            <p>
+                Удалить вопрос:<br>
+                "{{ object.question }}" от {{ object.created_at }}
+            </p>
+            <p>
+            <div class="row">
+                <div class="col-6">
+
+                    <form action="{% url 'quest:delete_quest' pk=object.pk %}"
+                          method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-block"
+                                type="submit">Подтвердить
+                        </button>
+                    </form>
+                </div>
+                <div class="col-6">
+                    <a class="btn btn-primary btn-block" href="{% url 'quest:quest' %}"
+                       role="button">Отмена</a>
+                </div>
             </div>
-            <div class="col-6">
-                <a class="btn btn-primary btn-block" href="{% url 'quest:quest' %}"
-                   role="button">Отмена</a>
-            </div>
+            </p>
         </div>
-        </p>
     </div>
-</div>
-
-</body>
-</html>
+{% endblock %}
