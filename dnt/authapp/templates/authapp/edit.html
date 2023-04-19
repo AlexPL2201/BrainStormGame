@@ -1,17 +1,17 @@
 {% extends 'main/base.html' %}
 
 {% block title %}
-    {{ title|title }}
+    Редактировать профиль
 {% endblock %}
 
 {% block body %}
 <form action="{% url 'auth:edit' %}" class="form_settings" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <h1 class="auth_h1">Edit</h1>
+    <h1 class="auth_h1">Редактировать профиль</h1>
     {% for field in edit_form %}
     <div class="field_wrapper">
         {% if field.label != "Password" %}
-        {{ field.label_tag }}{{ field }}{{ field.errors }}
+        <p><span>{{ field.label_tag }}</span>{{ field }}</p>{{ field.errors }}
         {% endif %}
     </div>
     {% endfor %}
@@ -20,7 +20,9 @@
         {{ field.label_tag }}{{ field }}{{ field.errors }}
     </div>
     {% endfor %}
-    <input type="submit" class="auth_button" value="Save">
+    <div class="container-buttons">
+        <input class="submit" type="submit" value="Сохранить">
+    </div>
 </form>
 {% endblock %}
 
