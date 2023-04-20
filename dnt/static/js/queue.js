@@ -123,5 +123,44 @@ window.addEventListener('load', () => {
 
     $('.lobby_chat_open').on('click', () => {
         $('.lobby_chat_block').css('display', 'flex');
+        $.ajax({
+            method: "get",
+            url: "/chat/load_messages/",
+            data: {type: 'lobby'},
+            success: (data) => {
+                let messages = data['messages'];
+                console.log(messages)
+                let html_string = '';
+                for (let message of messages) {
+                    if (message.sender_id == parseInt(user_id)) {
+                        html_string += `<span class="chat-sent">${message.text}</span>`;
+                    }else{
+                        html_string += `<span class="chat-received">${message.text}</span>`;
+                    }
+                }
+                $('.lobby_chat_messages').html(html_string);
+            },
+            error: (data) => {
+            }
+        })
     });
+
+    $('.lobby_chat_textarea').on('keydown', (event) => {
+
+        if (event.keyCode == 13) {
+
+            let chat_message = event.target.value;
+            $.ajax({
+                method: "get",
+                url: "/chat/create_messages/",
+                data: {message: chat_message, type: 'lobby'},
+                success: (data) => {
+
+                },
+                error: (data) => {
+                }
+            })
+        }
+    })
+
 });

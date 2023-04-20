@@ -77,10 +77,18 @@ window.addEventListener('load', () => {
         } else if(action == 'delete_theme') {
             $('.lobby_theme').remove();
         } else if(action == 'chat_message') {
-            if (data['message'] == parseInt(user_id)) {
-                $('.friend_chat_messages').append(`<span class='chat-sent'>${JSON.parse(data['message'])[0].fields.text}</span>`);
-            }else{
-                $('.friend_chat_messages').append(`<span class='chat-received'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+            if (data['type'] == 'friend') {
+                if (data['message'] == parseInt(user_id)) {
+                    $('.friend_chat_messages').append(`<span class='chat-sent'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+                } else {
+                    $('.friend_chat_messages').append(`<span class='chat-received'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+                }
+            } else if (data['type'] == 'lobby'){
+                if (data['message'] == parseInt(user_id)) {
+                    $('.lobby_chat_messages').append(`<span class='chat-sent'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+                } else {
+                    $('.lobby_chat_messages').append(`<span class='chat-received'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+                }
             }
         }
     };
@@ -142,8 +150,6 @@ window.addEventListener('load', () => {
 
     $('.header_friend_chat').on('click', (event) => {
         $('.friend_chat_block').css('display', 'flex');
-
-        $('.friend_chat_name').html();
         let friend_pk = parseInt(event.target.id.replace('chat_friend_', ''));
         $.ajax({
             method: "get",
@@ -179,7 +185,7 @@ window.addEventListener('load', () => {
             $.ajax({
                 method: "get",
                 url: "/chat/create_messages/",
-                data: {sender: user_id, receiver: reciever_pk, message: chat_message},
+                data: {sender: user_id, receiver: reciever_pk, message: chat_message, type: 'friend'},
                 success: (data) => {
 
                 },
