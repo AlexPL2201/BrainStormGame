@@ -1,11 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h1>Add a questions</h1>
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}
+    Добавить вопрос
+{% endblock %}
 
-</body>
-</html>
+{% block body %}
+    {% include 'questions/includes/messages.html' %}
+    <h1>Добавить вопрос</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>
+                <input type="text" name="question" autofocus=""
+                       autocapitalize="none" autocomplete="question"
+                       maxlength="150" class="textinput textInput form-control"
+                       required="" id="id_question" placeholder="Вопрос">
+            </p>
+            <p>
+                <input type="text" name="category" autofocus=""
+                       autocapitalize="none" autocomplete="category"
+                       maxlength="150" class="textinput textInput form-control"
+                       required="" id="id_category" placeholder="Категория">
+            </p>
+                    <p>
+                <input type="text" name="type" autofocus=""
+                       autocapitalize="none" autocomplete="type"
+                       maxlength="150" class="textinput textInput form-control"
+                       required="" id="id_type" placeholder="Тип">
+            </p>
+            <p>
+                <input type="text" name="subtype" autofocus=""
+                       autocapitalize="none" autocomplete="subtype"
+                       maxlength="150" class="textinput textInput form-control"
+                       required="" id="id_subtype" placeholder="Подтип">
+            </p>
+            <p>
+                <input type="text" name="answer" autofocus=""
+                       autocapitalize="none" autocomplete="answer"
+                       maxlength="150" class="textinput textInput form-control"
+                       required="" id="id_answer" placeholder="Ответ">
+            </p>
+            <p>
+                <button type="submit" class="btn btn-primary btn-block">
+                    Добавить
+                </button>
+            </p>
+        </form>
+    {% block js %}
+    <script>
+            $(document).ready(function () {
+                {% if messages %}
+                    // Toasts
+                    $(".toast").toast({ delay: 5000 });
+                    $(".toast").toast("show");
+                {% endif %}
+            });
+
+    </script>
+    {% endblock %}
+{% endblock %}

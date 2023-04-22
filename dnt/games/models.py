@@ -1,9 +1,11 @@
-from datetime import datetime
 from django.db import models
-from questions.models import Question
-
+from questions.models import Question, Category
+import datetime
 TYPES = (
         ('normal', 'Обычная'),
+        ('ranked', 'Ранговая'),
+        ('theme', 'Тематическая'),
+        ('friend', 'Дружеская')
     )
 
 
@@ -62,6 +64,9 @@ class Game(models.Model):
     types = TYPES
 
     type = models.CharField(max_length=16, choices=types, default=types[0])
+    lowest_level = models.SmallIntegerField()
+    highest_level = models.SmallIntegerField()
+    categories = models.ManyToManyField(Category, related_name='categories')
     started = models.DateTimeField(auto_now=True)
     is_finished = models.BooleanField(default=False)
     current_question = models.ForeignKey(Question, on_delete=models.PROTECT, null=True, blank=True)
@@ -71,3 +76,12 @@ class Game(models.Model):
     @property
     def players(self):
         return list(self.results.keys())
+
+    @property
+    def display_type(self):
+        return eval(self.type)[1]
+
+    @property
+    def get_time(self):
+        return self.started.strftime("%Y-%m-%d/%H:%M")
+

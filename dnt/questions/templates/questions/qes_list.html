@@ -1,17 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h1>A list of questions</h1>
-<a href="{% url 'quest:add_quest' %}">Add a questions</a>
-{% for item in object_list %}
-    <div>
-        <h2>{{ item.category.name }}</h2>
-        <p>{{ item.question }}</p>
-    </div>
-{% endfor %}
-</body>
-</html>
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}
+    Модерация вопросов
+{% endblock %}
+
+{% block body %}
+    <h1>Модерация вопросов</h1>
+        {% for item in object_list %}
+            {% if item.is_validated == False %}
+                <div>
+                    <h2>{{ item.category.name }}</h2>
+                    <h3>{{ item.created_at }}</h3>
+                    <p>{{ item.question }}</p>
+                    <p>{{ item.answer }}</p>
+                    <a href="{% url 'quest:update_quest' pk=item.pk %}">Одобрить</a>
+                    <a href="{% url 'quest:delete_quest' pk=item.pk %}">Не одобрять</a>
+                </div>
+            {% endif %}
+        {% endfor %}
+{% endblock %}

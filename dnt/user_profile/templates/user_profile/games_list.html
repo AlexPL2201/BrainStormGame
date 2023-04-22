@@ -1,0 +1,33 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}
+    Мои игры
+{% endblock %}
+
+{% block body %}
+    {% include "main/includes/inc-info.html" %}
+    <h1>Мои игры:</h1>
+    <table>
+  <thead>
+    <tr>
+      <th>Тип игры</th>
+      <th>Начало игры</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% if games %}
+        {% for game in games %}
+        <tr>
+            <td>{{ game.display_type }}</td>
+            <td>{{ game.get_time }}</td>
+      </tr>
+      {% endfor %}
+   </tbody>
+</table>
+  {% else %}
+    <p>Игры не найдены.</p>
+  {% endif %}
+<h3><a href="{% url 'user_profile:profile' pk=user.pk %}">Назад</a></h3>
+{% endblock %}
+

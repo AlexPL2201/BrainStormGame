@@ -1,0 +1,17 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}
+    Подтверждение добавления
+{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center pt-3">
+        <div class="col-md-12 col-lg-8">
+            <form method="post">
+                {% csrf_token %}
+                {{ form }}
+                <button type="submit" class="btn btn-primary btn-block">Опубликовать</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}
+    Предложить вопрос
+{% endblock %}
+
+{% block body %}
+    {% include 'questions/includes/messages.html' %}
+        <h1>Предложить вопрос</h1>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p>
+                    <input type="text" name="question" autofocus=""
+                           autocapitalize="none" autocomplete="question"
+                           maxlength="150" class="textinput textInput form-control"
+                           required="" id="id_question" placeholder="Вопрос">
+                </p>
+                <p>
+                    <select name="category" required="" id="id_category">
+                        {% for item in category_list %}
+                        <option value="{{ item.name }}">{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                </p>
+                <p>
+                    <select name="type" required="" id="id_type">
+                        {% for item in type_list %}
+                        <option value="{{ item.name }}">{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                </p>
+                <p>
+                    <select name="subtype" required="" id="id_subtype">
+                        {% for item in subtype_list %}
+                        <option value="{{ item.name }}">{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                </p>
+                <p>
+                    <input type="text" name="answer" autofocus=""
+                           autocapitalize="none" autocomplete="answer"
+                           maxlength="150" class="textinput textInput form-control"
+                           required="" id="id_answer" placeholder="Ответ">
+                </p>
+                <p>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Предложить
+                    </button>
+                </p>
+            </form>
+        {% block js %}
+        <script>
+                $(document).ready(function () {
+                    {% if messages %}
+                        // Toasts
+                        $(".toast").toast({ delay: 5000 });
+                        $(".toast").toast("show");
+                    {% endif %}
+                });
+
+
+        </script>
+        {% endblock %}
+{% endblock %}

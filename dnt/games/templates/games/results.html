@@ -1,15 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-{% for result in results %}
-    <div class="results_score_subblock">
-        <span class="results_score_nickname">{{ result.0.nickname }} </span>
-        <span class="results_score">{{ result.1 }}</span>
-    </div>
-{% endfor %}
-</body>
-</html>
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Игровое лобби{% endblock %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/games_style.css'%}">
+{% endblock %}
+{% block body %}
+<div class="game_content">
+    <table>
+    {% for result in results %}
+        <tr class="results_score_subblock {% if result.1 == 1 %}results_score_first{% elif result.1 == 2 %}results_score_second{% elif result == 3 %}results_score_third{% endif %}">
+            <td class="results_score_place">{{ result.1 }} </td>
+            <td class="results_score_nickname">{{ result.0.nickname }} </td>
+            <td class="results_score">{{ result.2 }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+    <a class="results_play_again" href="{% url 'games:lobby' %}"></a>
+</div>
+{% endblock %}

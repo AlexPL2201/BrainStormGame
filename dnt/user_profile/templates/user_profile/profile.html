@@ -1,0 +1,38 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}
+    Профиль
+{% endblock %}
+
+{% block body %}
+    {% include "main/includes/inc-info.html" %}
+
+
+<div class="container_auth" xmlns="http://www.w3.org/1999/html">
+
+    <h1>Профиль игрока.</h1>
+    {% if user.avatar %}
+        <img src="{{ user.avatar.url }}" alt="" width="20%">
+    {% else %}
+        <img src="{{ DEFAULT_AVATAR_URL }}avatar_rMO7Sgc.jpg" alt="" width="20%">
+    {% endif %}
+    <h2 class="auth_h1">Ник: {{ user.username }}</h2>
+    <h2 class="auth_h1">Дата рождения: {{ user.birthdate }}</h2>
+    {% if user.email == '' %}
+        <a href="{% url 'auth:edit' %}"><h3>Добавьте свой email</h3></a>
+    {% else %}
+    <h2 class="auth_h1">Email: {{ user.email }}</h2>
+    {% endif %}
+    <h2 class="auth_h1">Опыт текущего уровня: {{ user.current_experience }}</h2>
+    <h2 class="auth_h1">Уровень: {{ user.level }}</h2>
+
+
+</div>
+
+<a href="{% url 'user_profile:leaderboard' %}"><h2>Пятёрка лидеров</h2></a>
+ <a href="{% url 'user_profile:friends' %}" class="auth_link"><h2>Список друзей</h2></a>
+<a href="{% url 'user_profile:search_friends' %}"><h2>Поиск друзей</h2></a>
+<a href="{% url 'user_profile:games_list' %}"><h2>Мои игры</h2></a>
+<a href="{% url 'auth:edit' %}"><h2>Редактировать профиль</h2></a>
+{% endblock %}

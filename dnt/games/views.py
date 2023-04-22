@@ -1,11 +1,16 @@
 import time
 import random
+import math
+import json
+from collections import Counter
 from datetime import datetime
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from django.db.models import Q
-from .models import Lobby, Queue, Game
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from .models import Lobby, Queue, Game, Category
 from authapp.models import AuthUser
 from questions.models import Question, Answer
 from channels.layers import get_channel_layer
@@ -20,13 +25,91 @@ def create_lobby(request):
     current_user = request.user
     new_lobby = Lobby.objects.create()
     current_user.current_lobby = new_lobby
+    current_user.is_lobby_leader = True
     current_user.save()
 
     context = {
         'title': 'Игровое лобби',
         'user': current_user,
+        'modes': Game.types,
+        'max_players': GAME_MAX_PLAYERS,
+        'users_left': [],
+        'users_right': [],
+        'blanks_left': range(math.floor((GAME_MAX_PLAYERS - 1) / 2)),
+        'blanks_right': range(math.ceil((GAME_MAX_PLAYERS - 1) / 2)),
     }
+
     return render(request, 'games/lobby.html', context=context)
+
+
+def join_lobby_ajax(request):
+
+    sender = AuthUser.objects.get(pk=int(request.GET.get('sender_id')))
+    lobby = Lobby.objects.get(pk=sender.current_lobby.pk)
+
+    if lobby.players_count < GAME_MAX_PLAYERS:
+        current_user = request.user
+        current_user.current_lobby = lobby
+        current_user.is_lobby_leader = False
+        current_user.save()
+        # friends = [x[0] for x in current_user.friends.values_list('pk') if x not in [player.pk for player in lobby.players.all()]]
+
+        last_place = True if current_user.current_lobby.players_count == GAME_MAX_PLAYERS else False
+        data = {'action': 'player_join', 'joiner_pk': current_user.pk, 'joiner_nickname': current_user.nickname,
+                'last_place': last_place}
+        layer = get_channel_layer()
+        for user in AuthUser.objects.filter(current_lobby=current_user.current_lobby).exclude(pk=current_user.pk):
+            async_to_sync(layer.group_send)(f'user_{user.pk}', {'type': 'send_message', 'message': data})
+
+        return JsonResponse({'status': 'ok', 'url': 'http://' + request.META['HTTP_HOST'] + '/games/join_lobby/'})
+    else:
+        return JsonResponse({'status': 'full'})
+    
+
+def join_lobby(request):
+
+    current_user = request.user
+    current_lobby = current_user.current_lobby
+
+    theme = True if eval(current_lobby.type)[0] == 'theme' else False
+
+    users_left = [j for i, j in enumerate(AuthUser.objects.filter(current_lobby=current_lobby).exclude(pk=current_user.pk)) if (i + 1) % 2 == 0]
+    users_right = [j for i, j in enumerate(AuthUser.objects.filter(current_lobby=current_lobby).exclude(pk=current_user.pk)) if (i + 1) % 2 == 1]
+
+    context = {
+        'title': 'Игровое лобби',
+        'user': current_user,
+        'modes': Game.types,
+        'max_players': GAME_MAX_PLAYERS,
+        'users_left': users_left,
+        'users_right': users_right,
+        'blanks_left': range(math.floor((GAME_MAX_PLAYERS - 1) / 2) - len(users_left)),
+        'blanks_right': range(math.ceil((GAME_MAX_PLAYERS - 1) / 2) - len(users_right)),
+        'theme': theme,
+        'themes': Category.objects.all().values_list('name')
+    }
+
+    return render(request, 'games/lobby.html', context=context)
+
+def change_game_mode(request):
+
+    new_type = request.GET.get('mode')
+    lobby = Lobby.objects.get(pk=request.user.current_lobby.pk)
+    if eval(lobby.type)[0] == 'theme':
+        layer = get_channel_layer()
+        for user in AuthUser.objects.filter(current_lobby=request.user.current_lobby):
+            async_to_sync(layer.group_send)(f'user_{user.pk}',
+                                            {'type': 'send_message', 'message': {'action': 'delete_theme'}})
+    lobby.type = [type_ for type_ in lobby.types if type_[0] == new_type][0]
+    lobby.save()
+
+    if new_type == 'theme':
+        data = {'action': 'add_theme', 'themes': list(Category.objects.all().values_list('name'))}
+        layer = get_channel_layer()
+        for user in AuthUser.objects.filter(current_lobby=request.user.current_lobby):
+            async_to_sync(layer.group_send)(f'user_{user.pk}', {'type': 'send_message', 'message': data})
+
+    return JsonResponse({'ok': 'ok'})
 
 
 # view добавления в очередь и проверки количества игроков в ней
@@ -45,24 +128,31 @@ def queue(request):
     # получение среднего уровня и проверка наличия существующей очереди для этого уровня
     level = current_lobby.get_average_level // QUEUE_LEVEL_RANGE
     try:
-        new_queue = Queue.objects.filter(lowest_level=level).first()
+        new_queue = Queue.objects.filter(lowest_level=level, type=current_lobby.type).first()
     except:
         new_queue = False
 
     # если подходящей очереди нет, или если в очереди нет места для всех членов лобби, создаётся новая очередь
     if not new_queue or new_queue.players_count + current_lobby.players_count > max_players:
-        new_queue = Queue.objects.create(lowest_level=level, highest_level=level+QUEUE_LEVEL_RANGE)
+        new_queue = Queue.objects.create(lowest_level=level, highest_level=level+QUEUE_LEVEL_RANGE,
+                                         type=current_lobby.type)
 
     # лобби добавляется в очередь
     current_lobby.queue = new_queue
     current_lobby.save()
 
+    if current_lobby.players_count > 1:
+        data = {'action': 'queue', 'queue_id': new_queue.pk}
+        layer = get_channel_layer()
+        for user in AuthUser.objects.filter(current_lobby=current_lobby).exclude(pk=current_user.pk):
+            async_to_sync(layer.group_send)(f'user_{user.pk}', {'type': 'send_message', 'message': data})
+
     # если очередь заполнена, отправляется сигнал на запрос на подтверждение для всех пользователей в очереди
     if new_queue.players_count == max_players:
-        return JsonResponse({'result': 'start', 'queue_id': new_queue.pk, 'max_players': max_players})
+        return JsonResponse({'result': 'start', 'queue_id': new_queue.pk})
 
     # если нет, отправляется сигнал ждать
-    return JsonResponse({'result': 'wait', 'queue_id': new_queue.pk, 'max_players': max_players})
+    return JsonResponse({'result': 'wait', 'queue_id': new_queue.pk})
 
 
 # view создания игры
@@ -70,7 +160,13 @@ def create_game(request):
 
     # получается объект очереди, а также создаётся объект игры
     current_queue = request.user.current_lobby.queue
-    current_game = Game.objects.create()
+    current_game = Game.objects.create(lowest_level=current_queue.lowest_level,
+                                       highest_level=current_queue.highest_level,
+                                       type=current_queue.type)
+    if eval(current_game.type)[0] == 'theme':
+        for theme in json.loads(request.GET['themes']):
+            current_game.categories.add(Category.objects.get(name=theme))
+        current_game.save()
 
     # объектам всех пользователей в очереди в поле current_game присваивается созданная игра,
     # объекты очереди и всех лобби удаляются
@@ -94,9 +190,24 @@ def quit_lobby(request):
     current_user = request.user
 
     # если пользователь в лобби один, лобби удаляется, если нет - лобби убирается из current_lobby объекта пользователя
-    if current_user.current_lobby and current_user.current_lobby.players_count == 1:
+    if current_user.current_lobby is not None and current_user.current_lobby.players_count == 1:
         current_user.current_lobby.delete()
-    else:
+    elif current_user.current_lobby is not None:
+        data = {'action': 'player_quit', 'quitter_pk': current_user.pk, 'quitter_nickname': current_user.nickname,
+                'lobby_leader': False, 'u_r_alone': False}
+        layer = get_channel_layer()
+        users = AuthUser.objects.filter(current_lobby=request.user.current_lobby).exclude(pk=request.user.pk)
+        if current_user.is_lobby_leader:
+            new_leader = users.first()
+            new_leader.is_lobby_leader = True
+            new_leader.save()
+            data['lobby_leader'] = True
+            data['new_leader_pk'] = new_leader.pk
+            data['current_mode'] = current_user.current_lobby.type[0]
+        if current_user.current_lobby.players_count == 2:
+            data['u_r_alone'] = True
+        for user in AuthUser.objects.filter(current_lobby=request.user.current_lobby).exclude(pk=request.user.pk):
+            async_to_sync(layer.group_send)(f'user_{user.pk}', {'type': 'send_message', 'message': data})
         current_user.current_lobby = None
         current_user.save()
 
@@ -111,6 +222,13 @@ def cancel_queue(request):
     request.user.current_lobby.queue = None
     request.user.current_lobby.save()
 
+    # отправка сигнала для выхода из очереди всем игрокам в лобби
+    if request.user.current_lobby.players_count > 1:
+        data = {'action': 'cancel_queue'}
+        layer = get_channel_layer()
+        for user in AuthUser.objects.filter(current_lobby=request.user.current_lobby).exclude(pk=request.user.pk):
+            async_to_sync(layer.group_send)(f'user_{user.pk}', {'type': 'send_message', 'message': data})
+
     # ответ заглушка
     return JsonResponse({'ok': 'ok'})
 
@@ -121,7 +239,8 @@ def game(request):
     context = {
         'title': "Игра",
         # получение объектов всех игроков игры в алфавитном порядке
-        'users': AuthUser.objects.filter(current_game=request.user.current_game).order_by('nickname')
+        'users': AuthUser.objects.filter(current_game=request.user.current_game).order_by('nickname'),
+        'themes': request.user.current_game.categories.values_list('name')
     }
 
     return render(request, 'games/game.html', context)
@@ -143,8 +262,11 @@ def start_game(request):
         for _ in range(questions_count):
 
             # получение случайного вопроса, которого не было в игре, и добавление его в объект игры в current_question
-            question = Question.objects.exclude(pk__in=current_game.asked_questions.values_list('pk')).order_by('?').first()
+            questions = Question.objects.exclude(pk__in=current_game.asked_questions.values_list('pk'))
             current_game = Game.objects.get(pk=request.user.current_game.pk)
+            if eval(current_game.type)[0] in ['theme', 'friend']:
+                questions = questions.filter(category__pk__in=current_game.categories.values_list('pk'))
+            question = questions.order_by('?').first()
             current_game.current_question = question
             current_game.save()
 
@@ -201,11 +323,62 @@ def start_game(request):
             # даётся время на просмотр верного ответа
             time.sleep(GAME_TIME_SHOW_ANSWER)
 
-        # закрытие игры и убирание её объекта из current_game всех игроков
+        # закрытие игры
         current_game = Game.objects.get(pk=request.user.current_game.pk)
         current_game.is_finished = True
+
+        # функция получения среднего времени правильных ответов
+        def average_time(lst):
+            return datetime.strftime(datetime.fromtimestamp(sum(map(
+                lambda x: datetime.timestamp(datetime.strptime(x[:-7], '%Y-%m-%d %H:%M:%S')), lst)) / len(lst)),
+                                     '%Y-%m-%d %H:%M:%S')
+
+        # определение мест
+        standings = sorted([(pk, result['score']) for pk, result in current_game.results.items()],
+                           key=lambda x: x[1], reverse=True)
+
+        # определение мест при ничьих по очкам на основе времени правильных ответов
+        scores = [x[1] for x in standings]
+        scores_counter = Counter(scores)
+        for score, count in scores_counter.items():
+            if count > 1 and score != 0:
+                index = scores.index(score)
+                standings = standings[:index] + \
+                            sorted(standings[index:index + count],
+                                   key=lambda x: average_time([x[1] for x in current_game.results[x[0]]['answer_time'] if x[0]])) + \
+                            standings[index + count:]
+
+        # занесение мест в результаты игры
+        for i, standing in enumerate(standings):
+            current_game.results[standing[0]]['place'] = i + 1
         current_game.save()
-        for user in AuthUser.objects.filter(current_game=current_game.pk):
+
+        # начисление опыта за игру
+        for pk, result in current_game.results.items():
+            user = AuthUser.objects.get(pk=pk)
+            xp = XP_PER_GAME / result['place']
+            xp += XP_FIRST_PLACE_BONUS if result['place'] == 1 else 0
+
+            # калибровка опыта в зависимости от уровня игрока относительно уровня игры
+            xp_ratio = 1
+            if current_game.lowest_level > user.level:
+                xp_ratio += XP_OUT_OF_LEVEL_BONUS_RATIO \
+                            * math.ceil((current_game.lowest_level - user.level) / QUEUE_LEVEL_RANGE)
+            elif current_game.highest_level < user.level:
+                xp_ratio -= XP_OUT_OF_LEVEL_BONUS_RATIO \
+                            * math.ceil((user.level - current_game.highest_level) / QUEUE_LEVEL_RANGE)
+            xp *= xp_ratio
+
+            # добавление опыта пользователю
+            user.current_experience += int(xp / max(int(user.level * 0.5), 1))
+
+            # проверка перехода на новый уровень и его реализация
+            if user.current_experience >= XP_PER_LEVEL:
+                ratio = user.current_experience // XP_PER_LEVEL
+                user.current_experience -= XP_PER_LEVEL * ratio
+                user.level += ratio
+
+            # убирание объекта игры из current_game всех игроков
             user.current_game = None
             user.save()
 
@@ -247,16 +420,16 @@ def results(request, game_id):
     current_game = Game.objects.get(pk=game_id)
     players = AuthUser.objects.filter(pk__in=current_game.players)
 
-    # создание списка кортежей пар игрок-результат
+    # создание списка кортежей игрок-место-баллы
     game_results = []
 
     for player in players:
-        game_results.append((player, int(current_game.results[str(player.pk)]['score'])))
+        game_results.append((player, int(current_game.results[str(player.pk)]['place']), current_game.results[str(player.pk)]['score']))
 
     context = {
         'title': 'Результаты игры',
-        # сортировка списка по результатам
-        'results': sorted(game_results, key=lambda x: x[1], reverse=True)
+        # сортировка спика кортежей по месту
+        'results': sorted(game_results, key=lambda x: x[1])
     }
 
     return render(request, 'games/results.html', context)

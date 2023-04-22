@@ -1,0 +1,41 @@
+{% load static %}
+
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html lang="en">
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="{% static 'css/style.css'%}">
+        {% block style %}{% endblock %}
+        <script>
+            var user_id = {{ request.user.pk|safe }};
+        </script>
+        <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+        {% block js_first %}{% endblock %}
+        <script src="{% static 'js/user_websocket.js' %}"></script>
+        {% block js_second %}{% endblock %}
+    </head>
+    <body>
+        {% block header %}
+            {% include "main/includes/header.html" %}
+        {% endblock %}
+        <div id="site_content">
+            {% block body %}{% endblock %}
+        </div>
+        <footer>
+            {% block footer %}
+                {% include "main/includes/footer.html" %}
+            {% endblock %}
+        </footer>
+        <div class="friend_chat_block">
+            <div class="friend_chat_top">
+                <span class="friend_chat_name"></span>
+                <span class="friend_chat_close">Х</span>
+            </div>
+            <div class="friend_chat_messages">
+        
+            </div>
+            <textarea class="friend_chat_textarea" placeholder="Введите текст сообщения"></textarea>
+        </div>
+    </body>
+</html>
