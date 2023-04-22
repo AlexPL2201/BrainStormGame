@@ -16,12 +16,12 @@ GAME_TIME_SHOW_ANSWER = 3
 GAME_POINTS_FOR_CORRECT = 1
 GAME_POINTS_FOR_FASTEST = 1
 
-# Telegram BOT Custom Keyboard Button's Name
-MENU_BUTTONS = ['Создать вопрос',
-                'Оценить вопросы',
-                'Начать игры',
-                'Профиль',
-                ]
+# Telegram BOT Custom Keyboard Button's Names
+TG_MENU_CREATE_QUESTION = 'Создать вопрос'
+TG_MENU_RATE_QUESTIONS = 'Оценить вопросы'
+TG_MENU_START_GAME = 'Начать игру'
+TG_MENU_PROFILE = 'Профиль'
+TG_LEAVE_QUEUE = "Выйти из очереди"
 
 # games: xp
 XP_PER_LEVEL = 1000
