@@ -1,6 +1,6 @@
 # games: players and level
 QUEUE_LEVEL_RANGE = 5
-GAME_MAX_PLAYERS = 1
+GAME_MAX_PLAYERS = 2
 
 # games: questions and answers
 GAME_QUESTIONS_COUNT = 3

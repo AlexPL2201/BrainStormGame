@@ -15,7 +15,7 @@ from questions.models import Question, Answer
 from questions.operations import SettingRatingToQuestionByUser, AddNewQuestionByUser
 from variables import TG_MENU_START_GAME, TG_MENU_PROFILE, TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS, \
     GAME_MAX_PLAYERS, GAME_QUESTIONS_COUNT, TG_LEAVE_QUEUE, TG_EMOTIONS_GOOD, TG_EMOTIONS_BAD, GAME_TIME_SHOW_ANSWER, \
-    GAME_TIME_TO_ANSWER, GAME_TIME_BEFORE_START
+    GAME_TIME_TO_ANSWER, GAME_TIME_BEFORE_START, GAME_ANSWERS_COUNT
 
 MENU_LIST = [TG_MENU_START_GAME, TG_MENU_PROFILE,
              TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS]
@@ -291,28 +291,21 @@ class TelegramGame:
     def __init__(self, bot: TelegramClient):
         self.bot = bot
 
-    async def _answering_to_questions(self, player):
-        questions = Question.objects.all()
+    async def _answering_to_questions(self, player, questions_to_ask):
+        print(player)
+        print(questions_to_ask)
         answers = Answer.objects.all()
         player_score = 0
-
-        questions_to_ask = []
-        while len(questions_to_ask) < GAME_QUESTIONS_COUNT:
-            buf = random.choice(questions)
-            if buf in questions_to_ask:
-                pass
-            else:
-                questions_to_ask.append(buf)
 
         async with self.bot.conversation(player, timeout=GAME_TIME_TO_ANSWER) as conv:
             for i in range(GAME_QUESTIONS_COUNT):
                 question = questions_to_ask[i]
 
                 answer_buttons = [[Button.text(str(question.answer))]]
-                for random_answer in random.sample(list(answers), 3):
+                for random_answer in random.sample(list(answers), GAME_ANSWERS_COUNT - 1):
                     answer_buttons.append([Button.text(random_answer.answer)])
-
                 random.shuffle(answer_buttons)
+
                 await conv.send_message(str(question.question), buttons=answer_buttons)
                 try:
                     response = await conv.wait_event(events.NewMessage(incoming=True, from_users=player))
@@ -334,6 +327,13 @@ class TelegramGame:
 
     async def _start_regular_game(self, players: list):
 
+        questions = Question.objects.all()
+        questions_to_ask = []
+        while len(questions_to_ask) < GAME_QUESTIONS_COUNT:
+            random_question = random.choice(questions)
+            if random_question not in questions_to_ask:
+                questions_to_ask.append(random_question)
+
         # Получаем имена игроков
         player_objs = []
         for player in players:
@@ -346,7 +346,8 @@ class TelegramGame:
             await self.bot.send_message(player_obj['telegram_id'],
                                         f"Игра начинается! Вы играете против {', '.join(others_list)}.")
             time.sleep(GAME_TIME_BEFORE_START)
-            player_obj['task'] = asyncio.create_task(self._answering_to_questions(player_obj['telegram_id']))
+            player_obj['task'] = asyncio.create_task(self._answering_to_questions(player=player_obj['telegram_id'],
+                                                                                  questions_to_ask=questions_to_ask))
 
         for player_obj in player_objs:
             player_score = await player_obj['task']
