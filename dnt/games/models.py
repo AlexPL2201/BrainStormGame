@@ -1,6 +1,6 @@
 from django.db import models
 from questions.models import Question, Category
-
+import datetime
 TYPES = (
         ('normal', 'Обычная'),
         ('ranked', 'Ранговая'),
@@ -76,3 +76,12 @@ class Game(models.Model):
     @property
     def players(self):
         return list(self.results.keys())
+
+    @property
+    def display_type(self):
+        return eval(self.type)[1]
+
+    @property
+    def get_time(self):
+        return self.started.strftime("%Y-%m-%d/%H:%M")
+

@@ -34,6 +34,7 @@ def load_messages(request):
             {'messages': list(messages.values()), 'players': {player.pk: player.nickname for player in players}},
             safe=False)
 
+
 def create_messages(request):
     type_ = request.GET.get('type')
     if type_ == 'friend':
@@ -62,5 +63,5 @@ def create_messages(request):
         data = {'action': 'chat_message', 'message': serializers.serialize('json', [msg])}
         layer = get_channel_layer()
         async_to_sync(layer.group_send)(f'game_{request.user.current_game.pk}', {'type': 'send_message', 'message': data})
-
+        
     return JsonResponse({'ok': 'ok'})

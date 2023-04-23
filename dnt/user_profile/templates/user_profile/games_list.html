@@ -17,15 +17,14 @@
   </thead>
   <tbody>
   {% if games %}
-      {% for game in games %}
+        {% for game in games %}
         <tr>
-        <td>{{ game.type }}</td>
-        <td>{{ game.started }}</td>
+            <td>{{ game.display_type }}</td>
+            <td>{{ game.get_time }}</td>
       </tr>
       {% endfor %}
    </tbody>
 </table>
-
   {% else %}
     <p>Игры не найдены.</p>
   {% endif %}
