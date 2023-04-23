@@ -22,6 +22,7 @@ TG_MENU_RATE_QUESTIONS = 'Оценить вопросы'
 TG_MENU_START_GAME = 'Начать игру'
 TG_MENU_PROFILE = 'Профиль'
 TG_LEAVE_QUEUE = "Выйти из очереди"
+TG_CANCEL_DIALOG = 'Назад'
 TG_EMOTIONS_GOOD = ['👍', '👌', '😍', '😀', '💪']
 TG_EMOTIONS_BAD = ['🙊', '😔', '😢', '👎', '🙈']
 

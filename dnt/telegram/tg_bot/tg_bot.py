@@ -15,7 +15,7 @@ from questions.models import Question, Answer
 from questions.operations import SettingRatingToQuestionByUser, AddNewQuestionByUser
 from variables import TG_MENU_START_GAME, TG_MENU_PROFILE, TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS, \
     GAME_MAX_PLAYERS, GAME_QUESTIONS_COUNT, TG_LEAVE_QUEUE, TG_EMOTIONS_GOOD, TG_EMOTIONS_BAD, GAME_TIME_SHOW_ANSWER, \
-    GAME_TIME_TO_ANSWER, GAME_TIME_BEFORE_START, GAME_ANSWERS_COUNT
+    GAME_TIME_TO_ANSWER, GAME_TIME_BEFORE_START, GAME_ANSWERS_COUNT, TG_CANCEL_DIALOG
 
 MENU_LIST = [TG_MENU_START_GAME, TG_MENU_PROFILE,
              TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS]
@@ -39,7 +39,7 @@ class BotLogic:
 
         timeout_message = 'Время ответа истекло'
         try:
-            await conv.send_message(question)
+            await conv.send_message(question, buttons=Button.text(TG_CANCEL_DIALOG))
             answer = await conv.get_response()
             return answer.text
         except Exception as e:
@@ -100,6 +100,25 @@ class BotLogic:
 
     async def send_welcome_back(self):
         await self.bot.send_message(self.telegram_id, 'С возвращением!', buttons=MAIN_MENU)
+
+    async def cancel_conversation(self):
+        async with self.bot.conversation(self.telegram_id, exclusive=False) as conv:
+            await conv.cancel_all()
+        await self.bot.send_message(self.telegram_id, 'Завершено', buttons=MAIN_MENU)
+
+    async def send_profile(self):
+        user = AuthUser.objects.get(telegram_id=self.telegram_id)
+        user_profile = f'__Данные:__\n\n' \
+                       f'  Имя пользователя: {user.username}\n' \
+                       f'  Никнэйм: **{user.nickname}**\n' \
+                       f'  Присоединился: __{str(user.date_joined)[:10]}__\n\n' \
+                       f'__Характеристики:__\n\n' \
+                       f'  Уровень: **{user.level}**\n' \
+                       f'  Опыт текущего уровня: {user.current_experience}\n' \
+                       f'  Ранг: {user.rank.split(",")[1].replace(")", "")}\n' \
+                       f'  Дивизион: {user.division}'
+
+        await self.bot.send_message(self.telegram_id, user_profile)
 
     async def create_or_merge_account(self):
         """
@@ -236,7 +255,7 @@ class BotLogic:
     async def _show_lobby(self):
 
         game_type_buttons = [[Button.text(game_type[1], resize=True)] for game_type in GAMES_TYPES]
-        game_type_buttons.append([Button.text('Назад', resize=True)])
+        game_type_buttons.append([Button.text(TG_CANCEL_DIALOG, resize=True)])
 
         await self.bot.send_message(self.telegram_id, 'Выберите тип игры:', buttons=game_type_buttons)
 
@@ -246,12 +265,13 @@ class BotLogic:
                     message_pattern = '^(' + '|'.join(game_type[1] for game_type in GAMES_TYPES) + '|Назад' + ')$'
                     response = await conv.wait_event(events.NewMessage(pattern=message_pattern))
                     if response.text == 'Обычная':
-                        await response.respond(f'Выбран режим {response.text}.', buttons=Button.text(TG_LEAVE_QUEUE))
+                        await response.respond(f'Выбран режим {response.text}.',
+                                               buttons=Button.text(TG_LEAVE_QUEUE, resize=True))
                         await self._add_to_regular_queue()
                         break
-                    elif response.text == 'Назад':
-                        await conv.send_message('Возвращайся, когда будет настроение!', buttons=MAIN_MENU)
-                        break
+                    # elif response.text == 'Назад':
+                    #     await conv.send_message('Возвращайся, когда будет настроение!', buttons=MAIN_MENU)
+                    #     break
                     else:
                         await response.respond('К сожалению, этот тип игры пока недоступен.')
                 except asyncio.TimeoutError:
@@ -279,7 +299,8 @@ class BotLogic:
                     if answer:
                         answer_type = await self._get_answer_from_conv(conv=conv, question='Введи тип ответа:')
                         if answer_type:
-                            answer_subtype = await self._get_answer_from_conv(conv=conv, question='Введи подтип ответа:')
+                            answer_subtype = await self._get_answer_from_conv(conv=conv,
+                                                                              question='Введи подтип ответа:')
                             if answer_subtype:
                                 adding_process.add_question(question_text=question, question_category=category,
                                                             answer_text=answer, answer_type=answer_type,
@@ -293,8 +314,6 @@ class TelegramGame:
         self.bot = bot
 
     async def _answering_to_questions(self, player, questions_to_ask):
-        print(player)
-        print(questions_to_ask)
         answers = Answer.objects.all()
         player_score = 0
 
