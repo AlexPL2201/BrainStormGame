@@ -1,6 +1,7 @@
 import asyncio
 import json
 import random
+import time
 
 from django.contrib import auth
 from typing import List
@@ -13,7 +14,8 @@ from games.operations import GameProcessForUser
 from questions.models import Question, Answer
 from questions.operations import SettingRatingToQuestionByUser, AddNewQuestionByUser
 from variables import TG_MENU_START_GAME, TG_MENU_PROFILE, TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS, \
-    GAME_MAX_PLAYERS, GAME_QUESTIONS_COUNT, TG_LEAVE_QUEUE, TG_EMOTIONS_GOOD, TG_EMOTIONS_BAD
+    GAME_MAX_PLAYERS, GAME_QUESTIONS_COUNT, TG_LEAVE_QUEUE, TG_EMOTIONS_GOOD, TG_EMOTIONS_BAD, GAME_TIME_SHOW_ANSWER, \
+    GAME_TIME_TO_ANSWER, GAME_TIME_BEFORE_START
 
 MENU_LIST = [TG_MENU_START_GAME, TG_MENU_PROFILE,
              TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS]
@@ -302,7 +304,7 @@ class TelegramGame:
             else:
                 questions_to_ask.append(buf)
 
-        async with self.bot.conversation(player) as conv:
+        async with self.bot.conversation(player, timeout=GAME_TIME_TO_ANSWER) as conv:
             for i in range(GAME_QUESTIONS_COUNT):
                 question = questions_to_ask[i]
 
@@ -312,16 +314,21 @@ class TelegramGame:
 
                 random.shuffle(answer_buttons)
                 await conv.send_message(str(question.question), buttons=answer_buttons)
-                response = await conv.wait_event(events.NewMessage(incoming=True, from_users=player))
-                # Получаем текст ответа
-                text = response.message.text
-                if text == str(question.answer):
-                    emotion = random.choice(TG_EMOTIONS_GOOD)
-                    await conv.send_message(f'Верно! {emotion}')
-                    player_score += 1
-                else:
-                    emotion = random.choice(TG_EMOTIONS_BAD)
-                    await conv.send_message(f"Неверно {emotion},\nправильный ответ:\n{question.answer} ")
+                try:
+                    response = await conv.wait_event(events.NewMessage(incoming=True, from_users=player))
+                    # Получаем текст ответа
+                    text = response.message.text
+                    if text == str(question.answer):
+                        emotion = random.choice(TG_EMOTIONS_GOOD)
+                        await conv.send_message(f'Верно! {emotion}')
+                        player_score += 1
+                    else:
+                        emotion = random.choice(TG_EMOTIONS_BAD)
+                        await conv.send_message(f"Неверно {emotion},\nправильный ответ:\n{question.answer} ")
+                    time.sleep(GAME_TIME_SHOW_ANSWER)
+                except asyncio.exceptions.TimeoutError:
+                    await conv.send_message('Ты не успел ответить, время вышло 😞')
+                    continue
 
             return player_score
 
@@ -333,14 +340,12 @@ class TelegramGame:
             player_obj = {'telegram_id': player, 'nickname': AuthUser.objects.get(telegram_id=player).nickname}
             player_objs.append(player_obj)
 
-        scores = []
-
         for player_obj in player_objs:
             others_list = [player_obj_['nickname'] for player_obj_ in player_objs if
                            player_obj_['telegram_id'] != player_obj['telegram_id']]
             await self.bot.send_message(player_obj['telegram_id'],
                                         f"Игра начинается! Вы играете против {', '.join(others_list)}.")
-
+            time.sleep(GAME_TIME_BEFORE_START)
             player_obj['task'] = asyncio.create_task(self._answering_to_questions(player_obj['telegram_id']))
 
         for player_obj in player_objs:
