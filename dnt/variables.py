@@ -24,3 +24,6 @@ XP_OUT_OF_LEVEL_BONUS_RATIO = 0.2
 
 # for models
 NULLABLE = {"blank": True, "null": True}
+
+# questions: grade
+VOTES = 1
