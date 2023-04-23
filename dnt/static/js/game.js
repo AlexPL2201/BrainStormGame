@@ -57,6 +57,12 @@ window.addEventListener('load', () => {
         // переход на страницу с результатами
         } else if(action == 'show_results') {
             window.location.href = data['url'];
+        } else if (action == 'chat_message') {
+            if (data['message'] == parseInt(user_id)) {
+                    $('.game_chat_messages').append(`<span class='chat-sent'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+                } else {
+                    $('.game_chat_messages').append(`<span class='chat-received'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+                }
         }
     };
 
@@ -119,6 +125,44 @@ window.addEventListener('load', () => {
 
     $('.game_chat_open').on('click', () => {
         $('.game_chat_block').css('display', 'flex');
+        $.ajax({
+            method: "get",
+            url: "/chat/load_messages/",
+            data: {type: 'game'},
+            success: (data) => {
+                let messages = data['messages'];
+                console.log(messages)
+                let html_string = '';
+                for (let message of messages) {
+                    if (message.sender_id == parseInt(user_id)) {
+                        html_string += `<span class="chat-sent">${message.text}</span>`;
+                    }else{
+                        html_string += `<span class="chat-received">${message.text}</span>`;
+                    }
+                }
+                $('.game_chat_messages').html(html_string);
+            },
+            error: (data) => {
+            }
+        })
     });
+
+    $('.game_chat_textarea').on('keydown', (event) => {
+
+        if (event.keyCode == 13) {
+
+            let chat_message = event.target.value;
+            $.ajax({
+                method: "get",
+                url: "/chat/create_messages/",
+                data: {message: chat_message, type: 'game'},
+                success: (data) => {
+
+                },
+                error: (data) => {
+                }
+            })
+        }
+    })
 
 });
