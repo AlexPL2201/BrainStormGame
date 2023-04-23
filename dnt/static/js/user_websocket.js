@@ -77,17 +77,32 @@ window.addEventListener('load', () => {
         } else if(action == 'delete_theme') {
             $('.lobby_theme').remove();
         } else if(action == 'chat_message') {
+            let message = JSON.parse(data['message'])[0];
+            let message_sender = data['sender'];
+            let text = message.fields.text;
+            let date = message.fields.created_at.slice(0, 10);
+            let time = message.fields.created_at.slice(11, 16);
             if (data['type'] == 'friend') {
-                if (data['message'] == parseInt(user_id)) {
-                    $('.friend_chat_messages').append(`<span class='chat-sent'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+                if($('.friend_chat_messages > .chat_date').length == 0 || $('.friend_chat_messages > .chat_date')[0].outerText != date) {
+                    $('.friend_chat_messages').prepend(`<span class='chat_date'>${date}</span>`)
+                }
+                if (message.fields.sender == parseInt(user_id)) {
+                    $('.friend_chat_messages').prepend(`<div class='chat_sent'><span class='chat_message_sender'>${message_sender}</span>
+                    <span class='chat_message_text'>${text}<span class='chat_message_time'>${time}</span></span></div>`);
                 } else {
-                    $('.friend_chat_messages').append(`<span class='chat-received'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+                    $('.friend_chat_messages').prepend(`<div class='chat_received'><span class='chat_message_sender'>${message_sender}</span>
+                    <span class='chat_message_text'>${text}<span class='chat_message_time'>${time}</span></span></div>`);
                 }
             } else if (data['type'] == 'lobby'){
-                if (data['message'] == parseInt(user_id)) {
-                    $('.lobby_chat_messages').append(`<span class='chat-sent'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+                if($('.lobby_chat_messages > .chat_date').length == 0 || $('.lobby_chat_messages > .chat_date')[0].outerText != date) {
+                    $('.lobby_chat_messages').prepend(`<span class='chat_date'>${date}</span>`)
+                }
+                if (message.fields.sender == parseInt(user_id)) {
+                    $('.lobby_chat_messages').prepend(`<div class='chat_sent'><span class='chat_message_sender'>${message_sender}</span>
+                    <span class='chat_message_text'>${text}<span class='chat_message_time'>${time}</span></span></div>`);
                 } else {
-                    $('.lobby_chat_messages').append(`<span class='chat-received'>${JSON.parse(data['message'])[0].fields.text}</span>`);
+                    $('.lobby_chat_messages').prepend(`<div class='chat_received'><span class='chat_message_sender'>${message_sender}</span>
+                    <span class='chat_message_text'>${text}<span class='chat_message_time'>${time}</span></span></div>`);
                 }
             }
         }
@@ -157,17 +172,30 @@ window.addEventListener('load', () => {
             data: {friend_pk: friend_pk, type: 'friend'},
             success: (data) => {
                 let messages = data['messages'];
-                console.log(messages)
-                let html_string = '';
-                for (let message of messages) {
-                    if (message.sender_id == parseInt(user_id)) {
-                        html_string += `<span class="chat-sent">${message.text}</span>`;
-                    }else{
-                        html_string += `<span class="chat-received">${message.text}</span>`;
-                    }
-                }
-                $('.friend_chat_messages').html(html_string);
-                $('.friend_chat_name').html(data['friend_name']);
+                if (messages.length > 0) {
+                    let date = messages[0].created_at.slice(0, 10);
+                    let html_string = '';
+                    for (let message of messages) {
+                        let message_date = message.created_at.slice(0, 10);
+                        if(date != message_date) {
+                            html_string += `<span class='chat_date'>${date}</span>`;
+                            date = message_date;
+                        }
+                        let time = message.created_at.slice(11, 16);
+                        if (message.sender_id == parseInt(user_id)) {
+                            let message_sender = data['user_nickname'];
+                            html_string += `<div class='chat_sent'><span class='chat_message_sender'>${message_sender}</span>
+                            <span class='chat_message_text'>${message.text}<span class='chat_message_time'>${time}</span></span></div>`;
+                        }else{
+                            let message_sender = data['friend_nickname'];
+                            html_string += `<div class='chat_received'><span class='chat_message_sender'>${message_sender}</span>
+                            <span class='chat_message_text'>${message.text}<span class='chat_message_time'>${time}</span></span></div>`;
+                        }
+                    };
+                    html_string += `<span class='chat_date'>${date}</span>`;
+                    $('.friend_chat_messages').html(html_string);
+                };
+                $('.friend_chat_name').html(data['friend_nickname']);
                 $('.friend_chat_textarea').attr('id', `textarea_${friend_pk}`);
             },
             error: (data) => {
@@ -179,9 +207,10 @@ window.addEventListener('load', () => {
     $('.friend_chat_textarea').on('keydown', (event) => {
 
         if (event.keyCode == 13) {
-
+            event.preventDefault();
             let reciever_pk = parseInt(event.target.id.replace('textarea_', ''));
             let chat_message = event.target.value;
+            event.target.value = '';
             $.ajax({
                 method: "get",
                 url: "/chat/create_messages/",

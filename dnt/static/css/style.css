@@ -475,7 +475,6 @@ table tr td {
       position: fixed;
       bottom: 5px;
       right: 5px;
-      height: 200px;
       width: 300px;
       display: none;
       flex-direction: column;
@@ -494,10 +493,10 @@ table tr td {
 }
 
 .friend_chat_messages {
-      flex-grow: 1;
+      height: 170px;
       display: flex;
-      flex-direction: column;
-      justify-content: end;
+      flex-direction: column-reverse;
+      align-items: center;
       overflow-y: auto;
       width: 100%;
 }
@@ -512,4 +511,50 @@ table tr td {
 
 .friend_chat_close {
       cursor: pointer;
+}
+
+.chat_date {
+      margin: 5px 0;
+}
+
+.chat_sent, .chat_received {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0 5px 5px;
+}
+
+.chat_sent {
+      align-items: flex-end;
+}
+
+.chat_received {
+      align-items: flex-start;
+}
+
+.chat_message_sender {
+      margin: 5px 0 3px;
+}
+
+.chat_message_text {
+      border: 1px solid #F79F00;
+      border-radius: 5px;
+      padding: 2px 5px;
+      max-width: 60%;
+      position: relative;
+}
+
+.chat_message_time {
+      position: absolute;
+      bottom: 0;
+      font-size: 12px;
+}
+
+.chat_sent > .chat_message_text > .chat_message_time {
+      right: calc(100% + 5px);
+}
+
+.chat_received > .chat_message_text > .chat_message_time {
+      left: calc(100% + 5px);
 }

@@ -129,16 +129,28 @@ window.addEventListener('load', () => {
             data: {type: 'lobby'},
             success: (data) => {
                 let messages = data['messages'];
-                console.log(messages)
-                let html_string = '';
-                for (let message of messages) {
-                    if (message.sender_id == parseInt(user_id)) {
-                        html_string += `<span class="chat-sent">${message.text}</span>`;
-                    }else{
-                        html_string += `<span class="chat-received">${message.text}</span>`;
-                    }
-                }
-                $('.lobby_chat_messages').html(html_string);
+                if (messages.length > 0) {
+                    let date = messages[0].created_at.slice(0, 10);
+                    let html_string = '';
+                    for (let message of messages) {
+                        let message_date = message.created_at.slice(0, 10);
+                        if(date != message_date) {
+                            html_string += `<span class='chat_date'>${date}</span>`;
+                            date = message_date;
+                        }
+                        let time = message.created_at.slice(11, 16);
+                        let message_sender = data['players'][message.sender_id];
+                        if (message.sender_id == parseInt(user_id)) {
+                            html_string += `<div class='chat_sent'><span class='chat_message_sender'>${message_sender}</span>
+                            <span class='chat_message_text'>${message.text}<span class='chat_message_time'>${time}</span></span></div>`;
+                        }else{
+                            html_string += `<div class='chat_received'><span class='chat_message_sender'>${message_sender}</span>
+                            <span class='chat_message_text'>${message.text}<span class='chat_message_time'>${time}</span></span></div>`;
+                        }
+                    };
+                    html_string += `<span class='chat_date'>${date}</span>`;
+                    $('.lobby_chat_messages').html(html_string);
+                };
             },
             error: (data) => {
             }
@@ -148,8 +160,9 @@ window.addEventListener('load', () => {
     $('.lobby_chat_textarea').on('keydown', (event) => {
 
         if (event.keyCode == 13) {
-
+            event.preventDefault();
             let chat_message = event.target.value;
+            event.target.value = '';
             $.ajax({
                 method: "get",
                 url: "/chat/create_messages/",

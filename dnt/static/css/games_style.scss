@@ -187,7 +187,7 @@
 
 .game_bottom {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     margin-top: 20px;
 }
 
@@ -210,7 +210,6 @@
     position: fixed;
     bottom: 5px;
     left: 5px;
-    height: 200px;
     width: 300px;
     display: none;
     flex-direction: column;
@@ -229,10 +228,10 @@
 }
 
 .game_chat_messages, .lobby_chat_messages {
-    flex-grow: 1;
+    height: 170px;
     display: flex;
-    flex-direction: column;
-    justify-content: end;
+    flex-direction: column-reverse;
+    align-items: center;
     overflow-y: auto;
     width: 100%;
 }

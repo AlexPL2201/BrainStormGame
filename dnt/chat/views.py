@@ -16,19 +16,16 @@ def load_messages(request):
         friend_pk = int(request.GET.get('friend_pk'))
         friend = AuthUser.objects.get(pk=friend_pk)
         messages = FriendMessage.objects.filter(Q(sender__in=[request.user, friend])
-                                                & Q(receiver__in=[request.user, friend])).order_by('created_at')
-        print(messages)
-        return JsonResponse({'messages': list(messages.values()), 'friend_name': friend.nickname}, safe=False)
+                                                & Q(receiver__in=[request.user, friend])).order_by('-created_at')
+        return JsonResponse({'messages': list(messages.values()), 'friend_nickname': friend.nickname, 'user_nickname': request.user.nickname}, safe=False)
     elif type_ == 'lobby':
-        print(request.user)
-        print(request.user.current_lobby)
         lobby = request.user.current_lobby
-        messages = LobbyMessage.objects.filter(lobby=lobby).order_by('created_at')
+        messages = LobbyMessage.objects.filter(lobby=lobby).order_by('-created_at')
         players = lobby.players.all()
         return JsonResponse({'messages': list(messages.values()), 'players': {player.pk: player.nickname for player in players}}, safe=False)
     elif type_ == 'game':
         game = request.user.current_game
-        messages = GameMessage.objects.filter(game=game).order_by('created_at')
+        messages = GameMessage.objects.filter(game=game).order_by('-created_at')
         players = AuthUser.objects.filter(pk__in=game.players)
         return JsonResponse(
             {'messages': list(messages.values()), 'players': {player.pk: player.nickname for player in players}},
@@ -42,17 +39,15 @@ def create_messages(request):
         receiver_pk = int(request.GET.get('receiver'))
         sender_pk = int(request.GET.get('sender'))
         msg = FriendMessage.objects.create(text=button_message, receiver_id=receiver_pk, sender_id=sender_pk)
-        # FriendMessage.objects.create(receiver=receiver_pk)
-        data = {'action': 'chat_message', 'message': serializers.serialize('json', [msg]), 'type': 'friend'}
+        data = {'action': 'chat_message', 'message': serializers.serialize('json', [msg]), 'sender': request.user.nickname, 'type': 'friend'}
         layer = get_channel_layer()
         for pk in [sender_pk, receiver_pk]:
             async_to_sync(layer.group_send)(f'user_{pk}', {'type': 'send_message', 'message': data})
-        print(msg)
     elif type_ == 'lobby':
         button_message = request.GET.get('message')
         lobby = request.user.current_lobby
         msg = LobbyMessage.objects.create(text=button_message, lobby_id=lobby.pk, sender_id=request.user.pk)
-        data = {'action': 'chat_message', 'message': serializers.serialize('json', [msg]), 'type': 'lobby'}
+        data = {'action': 'chat_message', 'message': serializers.serialize('json', [msg]), 'sender': request.user.nickname, 'type': 'lobby'}
         layer = get_channel_layer()
         for player in lobby.players.all():
             async_to_sync(layer.group_send)(f'user_{player.pk}', {'type': 'send_message', 'message': data})
@@ -60,7 +55,7 @@ def create_messages(request):
         button_message = request.GET.get('message')
         game = request.user.current_game.pk
         msg = GameMessage.objects.create(text=button_message, game_id=game, sender_id=request.user.pk)
-        data = {'action': 'chat_message', 'message': serializers.serialize('json', [msg])}
+        data = {'action': 'chat_message', 'message': serializers.serialize('json', [msg]), 'sender': request.user.nickname}
         layer = get_channel_layer()
         async_to_sync(layer.group_send)(f'game_{request.user.current_game.pk}', {'type': 'send_message', 'message': data})
         

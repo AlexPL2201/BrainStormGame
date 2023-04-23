@@ -34,6 +34,7 @@ class SubType(models.Model):
 class Answer(models.Model):
     answer = models.CharField(max_length=64, verbose_name='Ответ')
     subtype = models.ForeignKey(SubType, on_delete=models.CASCADE, verbose_name='Подтип')
+    is_validated = models.BooleanField(default=False)
 
     def __str__(self):
         return f'#{self.answer}'

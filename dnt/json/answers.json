@@ -1,70 +1,87 @@
 [
   {
     "answer": "Губка Боб Квадратные Штаны",
-    "subtype": "Персонаж мультфильма"
+    "subtype": "Персонаж мультфильма",
+    "is_validated": true
   },
   {
     "answer": "Анна Франк",
-    "subtype": "Историческая личность"
+    "subtype": "Историческая личность",
+    "is_validated": true
   },
   {
     "answer": "Джон Мильтон",
-    "subtype": "Поэт"
+    "subtype": "Поэт",
+    "is_validated": true
   },
   {
     "answer": "Император Хирохито",
-    "subtype": "Политический деятель"
+    "subtype": "Политический деятель",
+    "is_validated": true
   },
   {
     "answer": "Харрисон Форд",
-    "subtype": "Актёр"
+    "subtype": "Актёр",
+    "is_validated": true
   },
   {
     "answer": "Хэлли Берри",
-    "subtype": "Актриса"
+    "subtype": "Актриса",
+    "is_validated": true
   },
   {
     "answer": "Мухаммед Али",
-    "subtype": "Боксёр"
+    "subtype": "Боксёр",
+    "is_validated": true
   },
   {
     "answer": "Харпер Ли",
-    "subtype": "Писательница"
+    "subtype": "Писательница",
+    "is_validated": true
   },
   {
     "answer": "Галилео Галилей",
-    "subtype": "Учёный"
+    "subtype": "Учёный",
+    "is_validated": true
   },
   {
     "answer": "Мари Кюри",
-    "subtype": "Учёная"
+    "subtype": "Учёная",
+    "is_validated": true
   },
   {
     "answer": "Нил Армстронг",
-    "subtype": "Космонавт"
+    "subtype": "Космонавт",
+    "is_validated": true
   },
   {
     "answer": "Рианна",
-    "subtype": "Певица"
+    "subtype": "Певица",
+    "is_validated": true
   },
   {
     "answer": "Куинси Джонс",
-    "subtype": "Продюсер"
+    "subtype": "Продюсер",
+    "is_validated": true
   },
   {
     "answer": "Джордж Р. Р. Мартин",
-    "subtype": "Писатель"
+    "subtype": "Писатель",
+    "is_validated": true
   },
   {
     "answer": "Гена",
-    "subtype": "Персонаж мультфильма"
+    "subtype": "Персонаж мультфильма",
+    "is_validated": true
   },
   {
     "answer": "Кот Матроскин",
-    "subtype": "Персонаж мультфильма"
+    "subtype": "Персонаж мультфильма",
+    "is_validated": true
   },
   {
     "answer": "Джон Сноу",
-    "subtype": "Персонаж телесериала"
+    "subtype": "Персонаж телесериала",
+    "is_validated": true
   }
 ]
