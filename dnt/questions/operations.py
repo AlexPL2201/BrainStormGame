@@ -3,13 +3,15 @@ import django
 from django.db.models import Q
 from typing import List
 
+from variables import MIN_LEVEL_TO_RATE_QUESTION
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dnt.settings')
 django.setup()
 
 from authapp.models import AuthUser, QuestionRatedByUser, Remark
 from questions.models import Question
 
-MIN_LEVEL_TO_RATE_QUESTION = 5
+
 
 
 class UserLevelTooLow(Exception):

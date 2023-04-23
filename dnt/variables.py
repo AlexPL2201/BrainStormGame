@@ -1,6 +1,6 @@
 # games: players and level
 QUEUE_LEVEL_RANGE = 5
-GAME_MAX_PLAYERS = 2
+GAME_MAX_PLAYERS = 1
 
 # games: questions and answers
 GAME_QUESTIONS_COUNT = 3
@@ -22,6 +22,11 @@ TG_MENU_RATE_QUESTIONS = 'Оценить вопросы'
 TG_MENU_START_GAME = 'Начать игру'
 TG_MENU_PROFILE = 'Профиль'
 TG_LEAVE_QUEUE = "Выйти из очереди"
+TG_EMOTIONS_GOOD = ['👍', '👌', '😍', '😀', '💪']
+TG_EMOTIONS_BAD = ['🙊', '😔', '😢', '👎', '🙈']
+
+# Questions rating
+MIN_LEVEL_TO_RATE_QUESTION = 1
 
 # games: xp
 XP_PER_LEVEL = 1000

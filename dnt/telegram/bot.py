@@ -74,16 +74,22 @@ def work_with_chat(api_id: int, api_hash: str, bot_token: str, session_file='bot
 
         elif message.text == TG_MENU_PROFILE:
             user = AuthUser.objects.get(telegram_id=telegram_id)
-            user_profile = f'Имя пользователя: {user.username}\n' \
-                           f'Никнэйм: {user.nickname}\n' \
-                           f'Присоединился: {str(user.date_joined)[:10]}'
+            user_profile = f'__Данные:__\n\n' \
+                           f'  Имя пользователя: {user.username}\n' \
+                           f'  Никнэйм: **{user.nickname}**\n' \
+                           f'  Присоединился: __{str(user.date_joined)[:10]}__\n\n' \
+                           f'__Характеристики:__\n\n' \
+                           f'  Уровень: **{user.level}**\n' \
+                           f'  Опыт текущего уровня: {user.current_experience}\n' \
+                           f'  Ранг: {user.rank.split(",")[1].replace(")", "")}\n' \
+                           f'  Дивизион: {user.division}'
+
             await bot.send_message(telegram_id, user_profile)
 
     bot.start()
     game = TelegramGame(bot=bot)
     bot.loop.create_task(game.matchmaking())
     bot.run_until_disconnected()
-
 
 if __name__ == "__main__":
 

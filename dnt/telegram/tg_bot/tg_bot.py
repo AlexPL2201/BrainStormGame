@@ -13,7 +13,7 @@ from games.operations import GameProcessForUser
 from questions.models import Question, Answer
 from questions.operations import SettingRatingToQuestionByUser
 from variables import TG_MENU_START_GAME, TG_MENU_PROFILE, TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS, \
-    GAME_MAX_PLAYERS, GAME_QUESTIONS_COUNT, TG_LEAVE_QUEUE
+    GAME_MAX_PLAYERS, GAME_QUESTIONS_COUNT, TG_LEAVE_QUEUE, TG_EMOTIONS_GOOD, TG_EMOTIONS_BAD
 
 MENU_LIST = [TG_MENU_START_GAME, TG_MENU_PROFILE,
              TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS]
@@ -221,7 +221,7 @@ class BotLogic:
         else:
             regular_queue.append(self.telegram_id)
             await self.bot.send_message(self.telegram_id,
-                                        'Вы добавлены в очередь для обычной игры. Подождите, пока найдется противник.')
+                                        'Вы добавлены в очередь для обычной игры. Подождите, пока найдется противник 🤞')
 
     async def remove_from_regular_queue(self):
         global regular_queue
@@ -294,10 +294,12 @@ class TelegramGame:
                 # Получаем текст ответа
                 text = response.message.text
                 if text == str(question.answer):
-                    await conv.send_message('Верно!')
+                    emotion = random.choice(TG_EMOTIONS_GOOD)
+                    await conv.send_message(f'Верно! {emotion}')
                     player_score += 1
                 else:
-                    await conv.send_message(f"Увы, \n правильный ответ: \n{question.answer} ")
+                    emotion = random.choice(TG_EMOTIONS_BAD)
+                    await conv.send_message(f"Неверно {emotion},\nправильный ответ:\n{question.answer} ")
 
             return player_score
 
