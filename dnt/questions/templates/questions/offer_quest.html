@@ -16,6 +16,7 @@
                            required="" id="id_question" placeholder="Вопрос">
                 </p>
                 <p>
+                    Категория:
                     <select name="category" required="" id="id_category">
                         {% for item in category_list %}
                         <option value="{{ item.name }}">{{ item.name }}</option>
@@ -23,6 +24,7 @@
                     </select>
                 </p>
                 <p>
+                    Тип:
                     <select name="type" required="" id="id_type">
                         {% for item in type_list %}
                         <option value="{{ item.name }}">{{ item.name }}</option>
@@ -30,6 +32,7 @@
                     </select>
                 </p>
                 <p>
+                    Подтип:
                     <select name="subtype" required="" id="id_subtype">
                         {% for item in subtype_list %}
                         <option value="{{ item.name }}">{{ item.name }}</option>

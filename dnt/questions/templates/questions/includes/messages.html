@@ -10,16 +10,6 @@
                     {% endif %}
                     " role="alert" aria-live="assertive" aria-atomic="true"
                  style="right: 0;">
-                <div class="toast-header">
-                    <span class="mr-2"><i class="far fa-envelope"></i></span>
-                    <strong class="mr-auto {% if message.level == 30 %}text-warning{% endif %}">
-                        {{ message.tags|capfirst }} message</strong>
-                    <small class="text-muted">just now</small>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast"
-                            aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
                 <div class="toast-body">
                     {{ message }}
                 </div>

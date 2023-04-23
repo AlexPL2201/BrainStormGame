@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -9,6 +9,7 @@ from django.views.generic import TemplateView, DeleteView, UpdateView, CreateVie
 from authapp.models import Remark, AuthUser, QuestionRatedByUser
 from questions.models import Question, Category, Type, SubType, Answer, QuestionComplaint
 
+from variables import *
 
 class QuestionView(TemplateView):
     template_name = 'questions/qes_list.html'
@@ -133,6 +134,13 @@ class GradeQuestionView(TemplateView):
                     rating=request.POST.get('rating'),
                 )
                 new_remark.save()
+                question = Question.objects.get(question=request.POST.get('question'))
+                remark = Remark.objects.filter(question=question).aggregate(Sum('rating'))
+                if remark['rating__sum'] >= VOTES:
+                    question.is_validated = True
+                    question.save()
+                elif remark['rating__sum'] <= -VOTES:
+                    question.delete()
                 messages.add_message(request, messages.INFO, 'Оценка выполнена')
                 return HttpResponseRedirect(reverse('quest:grade_quest'))
             else:
@@ -147,6 +155,7 @@ class GradeQuestionView(TemplateView):
                 'Не удалось выполнить оценку'
             )
             return HttpResponseRedirect(reverse('quest:grade_quest'))
+
 
 class OfferQuestionView(TemplateView):
     template_name = 'questions/offer_quest.html'
