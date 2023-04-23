@@ -139,6 +139,8 @@ class GradeQuestionView(TemplateView):
                 if remark['rating__sum'] >= VOTES:
                     question.is_validated = True
                     question.save()
+                    question.answer.is_validated = True
+                    question.answer.save()
                 elif remark['rating__sum'] <= -VOTES:
                     question.delete()
                 messages.add_message(request, messages.INFO, 'Оценка выполнена')
