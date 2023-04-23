@@ -27,6 +27,7 @@ TG_EMOTIONS_BAD = ['🙊', '😔', '😢', '👎', '🙈']
 
 # Questions rating
 MIN_LEVEL_TO_RATE_QUESTION = 1
+MIN_LEVEL_TO_ADD_QUESTION = 1
 
 # games: xp
 XP_PER_LEVEL = 1000

@@ -11,7 +11,7 @@ from authapp.models import AuthUser
 from games.models import TYPES as GAMES_TYPES
 from games.operations import GameProcessForUser
 from questions.models import Question, Answer
-from questions.operations import SettingRatingToQuestionByUser
+from questions.operations import SettingRatingToQuestionByUser, AddNewQuestionByUser
 from variables import TG_MENU_START_GAME, TG_MENU_PROFILE, TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS, \
     GAME_MAX_PLAYERS, GAME_QUESTIONS_COUNT, TG_LEAVE_QUEUE, TG_EMOTIONS_GOOD, TG_EMOTIONS_BAD
 
@@ -241,16 +241,14 @@ class BotLogic:
         async with self.bot.conversation(self.telegram_id) as conv:
             while True:
                 try:
-                    message_pattern = '^(' + '|'.join(game_type[1] for game_type in GAMES_TYPES) + ')$'  # TODO
-                    response = await conv.wait_event(
-                        events.NewMessage(pattern='^(Обычная|Тематическая|Дружеская|Назад)$'))
+                    message_pattern = '^(' + '|'.join(game_type[1] for game_type in GAMES_TYPES) + '|Назад' + ')$'
+                    response = await conv.wait_event(events.NewMessage(pattern=message_pattern))
                     if response.text == 'Обычная':
-                        await response.respond('Вы выбрали режим "Обычная".', buttons=Button.text(TG_LEAVE_QUEUE))
+                        await response.respond(f'Выбран режим {response.text}.', buttons=Button.text(TG_LEAVE_QUEUE))
                         await self._add_to_regular_queue()
-                        # print(f"Добавлен пользователь {event.sender_id} в очередь")
                         break
                     elif response.text == 'Назад':
-                        await conv.send_message('Ну как хотите', buttons=MAIN_MENU)
+                        await conv.send_message('Возвращайся, когда будет настроение!', buttons=MAIN_MENU)
                         break
                     else:
                         await response.respond('К сожалению, этот тип игры пока недоступен.')
@@ -260,6 +258,30 @@ class BotLogic:
 
     async def play_game(self, game_process: GameProcessForUser):
         await self._show_lobby()
+
+    async def add_question(self, adding_process: AddNewQuestionByUser):
+        """
+        Диалог добавления вопроса пользователем.
+        В будущем стоит снабдить ответы кнопками с текущими сущностями,
+        чтобы если она уже есть пользователю не пришлось ее вводить.
+        :param adding_process: AddNewQuestionByUser
+        :return:
+        """
+        async with self.bot.conversation(self.telegram_id) as conv:
+            category = await self._get_answer_from_conv(conv=conv, question='Введи категорию:')
+            if category:
+                question = await self._get_answer_from_conv(conv=conv, question='Введи вопрос:')
+                if question:
+                    answer = await self._get_answer_from_conv(conv=conv, question='Введи правильный ответ:')
+                    if answer:
+                        answer_type = await self._get_answer_from_conv(conv=conv, question='Введи тип ответа:')
+                        if answer_type:
+                            answer_subtype = await self._get_answer_from_conv(conv=conv, question='Введи подтип ответа:')
+                            if answer_subtype:
+                                adding_process.add_question(question_text=question, question_category=category,
+                                                            answer_text=answer, answer_type=answer_type,
+                                                            answer_subtype=answer_subtype)
+                                await conv.send_message('Спасибо, вопрос добавлен. После проверки он попадет в игры.')
 
 
 class TelegramGame:

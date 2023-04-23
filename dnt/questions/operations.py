@@ -3,15 +3,13 @@ import django
 from django.db.models import Q
 from typing import List
 
-from variables import MIN_LEVEL_TO_RATE_QUESTION
+from variables import MIN_LEVEL_TO_RATE_QUESTION, MIN_LEVEL_TO_ADD_QUESTION
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dnt.settings')
 django.setup()
 
 from authapp.models import AuthUser, QuestionRatedByUser, Remark
-from questions.models import Question
-
-
+from questions.models import Question, Category, Type, SubType, Answer, QuestionComplaint
 
 
 class UserLevelTooLow(Exception):
@@ -117,6 +115,62 @@ class SettingRatingToQuestionByUser:
         else:
             remark.rating -= 1
         remark.save()
+
+
+class AddNewQuestionByUser:
+    """
+    Класс для добавления вопроса пользователем.
+    Скопировано из questions/views/AddQuestionsView.
+    (в будущем там стоит переиспользовать данный класс)
+    """
+
+    def __init__(self, user: AuthUser):
+        """
+        Создание объекта процесса добавления вопроса.
+        Создается для конкретного пользователя
+        """
+        if user.level >= MIN_LEVEL_TO_ADD_QUESTION:
+            self.user = user
+        else:
+            raise UserLevelTooLow
+
+    @staticmethod
+    def add_question(question_text: str, question_category: str,
+                     answer_text: str, answer_type: str, answer_subtype: str):
+
+        try:
+            Category.objects.get(name=question_category)
+        except Category.DoesNotExist:
+            new_category = Category.objects.create(name=question_category)
+            new_category.save()
+
+        try:
+            Type.objects.get(name=answer_type)
+        except Type.DoesNotExist:
+            new_type = Type.objects.create(name=answer_type)
+            new_type.save()
+
+        try:
+            SubType.objects.get(name=answer_subtype)
+        except SubType.DoesNotExist:
+            new_subtype = SubType.objects.create(name=answer_subtype,
+                                                 type=Type.objects.get(name=answer_type))
+            new_subtype.save()
+
+        try:
+            Answer.objects.get(answer=answer_text)
+        except Answer.DoesNotExist:
+            new_answer = Answer.objects.create(answer=answer_text,
+                                               subtype=SubType.objects.get(name=answer_subtype))
+            new_answer.save()
+
+        try:
+            Question.objects.get(question=question_text)
+        except Question.DoesNotExist:
+            new_question = Question.objects.create(category=Category.objects.get(name=question_category),
+                                                   question=question_text,
+                                                   answer=Answer.objects.get(answer=answer_text))
+            new_question.save()
 
 
 if __name__ == '__main__':
