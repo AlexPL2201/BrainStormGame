@@ -11,7 +11,7 @@
             <input type="hidden" name="next" value="{{ next }}">
         {% endif %}
         {% for field in login_form %}
-            <p><span>{{ field.label_tag }}</span>{{ field }}</p>{{ field.errors }}
+            <p><span>{{ field.label_tag }}</span>{{ field }}</p>
         {% endfor %}
         <div class="container-buttons">
             <a href="{% url 'authapp:register' %}" class="submit">Регистрация</a>

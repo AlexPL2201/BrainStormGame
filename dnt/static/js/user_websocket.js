@@ -90,8 +90,12 @@ window.addEventListener('load', () => {
                     $('.friend_chat_messages').prepend(`<div class='chat_sent'><span class='chat_message_sender'>${message_sender}</span>
                     <span class='chat_message_text'>${text}<span class='chat_message_time'>${time}</span></span></div>`);
                 } else {
-                    $('.friend_chat_messages').prepend(`<div class='chat_received'><span class='chat_message_sender'>${message_sender}</span>
-                    <span class='chat_message_text'>${text}<span class='chat_message_time'>${time}</span></span></div>`);
+                    if($('.friend_chat_block').css('display') == 'none' || $('.friend_chat_name').html != data['sender']) {
+                        $(`#chat_friend_${message.fields.sender}`).click();
+                    } else {
+                        $('.friend_chat_messages').prepend(`<div class='chat_received'><span class='chat_message_sender'>${message_sender}</span>
+                        <span class='chat_message_text'>${text}<span class='chat_message_time'>${time}</span></span></div>`);
+                    }
                 }
             } else if (data['type'] == 'lobby'){
                 if($('.lobby_chat_messages > .chat_date').length == 0 || $('.lobby_chat_messages > .chat_date')[0].outerText != date) {

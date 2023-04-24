@@ -11,7 +11,13 @@
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <p>
-                    <input type="hidden" name="question" value="{{ question_list.question }}">{{ question_list.question }}</input>
+                    <input type="hidden" name="question" value="{{ question_list.question }}">Вопрос: {{ question_list.question }}
+            </p>
+            <p>
+                    Категория вопроса: {{ question_list.category }}
+            </p>
+            <p>
+                    Ответ: {{ question_list.answer }} ({{ question_list.answer.subtype.type }}, {{ question_list.answer.subtype }})
             </p>
             <p>
                 <input type="text" name="text" autofocus=""

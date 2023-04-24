@@ -11,6 +11,7 @@ from questions.models import Question, Category, Type, SubType, Answer, Question
 
 from variables import *
 
+
 class QuestionView(TemplateView):
     template_name = 'questions/qes_list.html'
 
@@ -106,6 +107,7 @@ class AddQuestionsView(TemplateView):
                 'Не удалось добавить вопрос'
             )
             return HttpResponseRedirect(reverse('quest:add_quest'))
+
 
 class GradeQuestionView(TemplateView):
     template_name = 'questions/grade_quest.html'

@@ -26,4 +26,4 @@ XP_OUT_OF_LEVEL_BONUS_RATIO = 0.2
 NULLABLE = {"blank": True, "null": True}
 
 # questions: grade
-VOTES = 1
+VOTES = 2

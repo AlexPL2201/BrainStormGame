@@ -1,7 +1,8 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 from authapp.forms import AuthUserRegisterForm, AuthUserLoginForm, AuthUserEditForm
 
 
@@ -52,6 +53,7 @@ def register(request):
     return render(request, 'authapp/register.html', context)
 
 
+@login_required
 def edit(request):
     if request.method == 'POST':
         edit_form = AuthUserEditForm(request.POST, request.FILES, instance=request.user)

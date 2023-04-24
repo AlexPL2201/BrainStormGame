@@ -20,7 +20,7 @@ class AuthUserRegisterForm(UserCreationForm):
 
     class Meta:
         model = AuthUser
-        fields = ('username', 'birthdate', 'email', 'avatar')
+        fields = ('username', 'nickname', 'birthdate', 'email', 'avatar')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,7 +32,7 @@ class AuthUserRegisterForm(UserCreationForm):
 class AuthUserEditForm(UserChangeForm):
     class Meta:
         model = AuthUser
-        fields = ('username', 'birthdate', 'email', 'avatar', 'password')
+        fields = ('username', 'nickname', 'birthdate', 'email', 'avatar', 'password')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

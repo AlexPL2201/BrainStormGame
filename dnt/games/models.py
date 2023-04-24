@@ -1,11 +1,9 @@
 from django.db import models
 from questions.models import Question, Category
-import datetime
+
 TYPES = (
         ('normal', 'Обычная'),
-        ('ranked', 'Ранговая'),
-        ('theme', 'Тематическая'),
-        ('friend', 'Дружеская')
+        ('theme', 'Тематическая')
     )
 
 

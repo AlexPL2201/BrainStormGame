@@ -16,9 +16,11 @@ from questions.models import Question, Answer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from variables import *
+from django.contrib.auth.decorators import login_required
 
 
 # view страницы игрового лобби и очереди и создания игрового лобби
+@login_required
 def create_lobby(request):
 
     # создание лобби и добавление его в объект пользователя в качестве current_lobby
@@ -66,6 +68,7 @@ def join_lobby_ajax(request):
         return JsonResponse({'status': 'full'})
     
 
+@login_required
 def join_lobby(request):
 
     current_user = request.user
@@ -90,6 +93,7 @@ def join_lobby(request):
     }
 
     return render(request, 'games/lobby.html', context=context)
+
 
 def change_game_mode(request):
 
@@ -234,6 +238,7 @@ def cancel_queue(request):
 
 
 # view страницы игры
+@login_required
 def game(request):
 
     context = {
@@ -414,6 +419,7 @@ def check_answer(request):
 
 
 # view страницы результатов игры
+@login_required
 def results(request, game_id):
 
     # получение объекта нужной игры и всех её игроков
