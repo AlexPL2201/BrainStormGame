@@ -2,19 +2,27 @@ import os
 
 import django
 
+from games.operations import GameProcessForUser
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dnt.settings')
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
 from telethon.sync import TelegramClient, events
-from telegram.tg_bot.tg_bot import BotLogic
+from telegram.tg_bot.tg_bot import BotLogic, TelegramGame, MAIN_MENU
 import authapp
 from authapp.models import AuthUser
-from questions.operations import SettingRatingToQuestionByUser, UserLevelTooLow, NoUnratedQuestionsForUser
+from questions.operations import SettingRatingToQuestionByUser, UserLevelTooLow, NoUnratedQuestionsForUser, \
+    AddNewQuestionByUser
+from variables import TG_MENU_START_GAME, TG_MENU_PROFILE, TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS, \
+    TG_LEAVE_QUEUE, TG_CANCEL_DIALOG
 
 BOT_TOKEN = os.environ['BOT_TOKEN']
 API_ID = os.environ['API_ID']
 API_HASH = os.environ['API_HASH']
+
+MENU_BUTTONS = [TG_MENU_START_GAME, TG_MENU_PROFILE,
+                TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS]
 
 
 def work_with_chat(api_id: int, api_hash: str, bot_token: str, session_file='bot') -> None:
@@ -43,7 +51,18 @@ def work_with_chat(api_id: int, api_hash: str, bot_token: str, session_file='bot
                 # если в БД нет пользователя с таким telegram_id
                 await bot_logic.create_or_merge_account()
 
-        elif message.text == '/rate':
+        elif message.text == TG_MENU_START_GAME:
+            try:
+                user = AuthUser.objects.get(telegram_id=telegram_id)
+                game_process = GameProcessForUser(user)
+                await bot_logic.play_game(game_process)
+            except Exception as e:
+                print(e, e.__class__.__name__)
+
+        elif message.text == TG_LEAVE_QUEUE:
+            await bot_logic.remove_from_regular_queue()
+
+        elif message.text == TG_MENU_RATE_QUESTIONS:
             try:
                 user = AuthUser.objects.get(telegram_id=telegram_id)
                 rating_process = SettingRatingToQuestionByUser(user)
@@ -54,13 +73,32 @@ def work_with_chat(api_id: int, api_hash: str, bot_token: str, session_file='bot
             except NoUnratedQuestionsForUser:
                 await bot.send_message(telegram_id, 'Ты уже оценил все вопросы')
 
+        elif message.text == TG_MENU_CREATE_QUESTION:
+            try:
+                user = AuthUser.objects.get(telegram_id=telegram_id)
+                adding_process = AddNewQuestionByUser(user)
+                await bot_logic.add_question(adding_process)
+
+            except UserLevelTooLow:
+                await bot.send_message(telegram_id, 'Твоего уровня недостаточно для оценки вопросов')
+            except NoUnratedQuestionsForUser:
+                await bot.send_message(telegram_id, 'Ты уже оценил все вопросы')
+
+        elif message.text == TG_CANCEL_DIALOG:
+            await bot_logic.cancel_conversation()
+
+        elif message.text == TG_MENU_PROFILE:
+            await bot_logic.send_profile()
+
     bot.start()
+    game = TelegramGame(bot=bot)
+    bot.loop.create_task(game.matchmaking())
     bot.run_until_disconnected()
 
 
 if __name__ == "__main__":
 
     try:
-        work_with_chat(API_ID, API_HASH, BOT_TOKEN)
+        work_with_chat(int(API_ID), API_HASH, BOT_TOKEN)
     except Exception as e:
         print(e.__class__.__name__, e)

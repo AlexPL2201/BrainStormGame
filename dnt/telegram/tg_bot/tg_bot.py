@@ -1,14 +1,30 @@
+import asyncio
+import json
+import random
+import time
+
 from django.contrib import auth
 from typing import List
 from telethon.sync import TelegramClient, events
 from telethon.tl.custom import Button
 
 from authapp.models import AuthUser
-from questions.operations import SettingRatingToQuestionByUser, AlreadyRemarkedByThisUser
+from games.models import TYPES as GAMES_TYPES
+from games.operations import GameProcessForUser
+from questions.models import Question, Answer
+from questions.operations import SettingRatingToQuestionByUser, AddNewQuestionByUser
+from variables import TG_MENU_START_GAME, TG_MENU_PROFILE, TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS, \
+    GAME_MAX_PLAYERS, GAME_QUESTIONS_COUNT, TG_LEAVE_QUEUE, TG_EMOTIONS_GOOD, TG_EMOTIONS_BAD, GAME_TIME_SHOW_ANSWER, \
+    GAME_TIME_TO_ANSWER, GAME_TIME_BEFORE_START, GAME_ANSWERS_COUNT, TG_CANCEL_DIALOG
+
+MENU_LIST = [TG_MENU_START_GAME, TG_MENU_PROFILE,
+             TG_MENU_CREATE_QUESTION, TG_MENU_RATE_QUESTIONS]
+MAIN_MENU = [Button.text(button, resize=True) for button in MENU_LIST]
+regular_queue = []
 
 
 class BotLogic:
-
+    # кнопки основного меню (Custom Keyboard), которые выводятся в случае успешной авторизации пользователя
     def __init__(self, bot: TelegramClient, telegram_id: int, telegram_username: str):
         self.bot = bot
         self.telegram_id = telegram_id
@@ -18,12 +34,12 @@ class BotLogic:
     async def _get_answer_from_conv(conv: TelegramClient.conversation, question: str):
         """
         Функция-обертка над фрагментом диалога
-        (отправит пользователю уведомление, есил время ожилания ответа истечет)
+        (отправит пользователю уведомление, если время ожидания ответа истечет)
         """
 
         timeout_message = 'Время ответа истекло'
         try:
-            await conv.send_message(question)
+            await conv.send_message(question, buttons=Button.text(TG_CANCEL_DIALOG, resize=True))
             answer = await conv.get_response()
             return answer.text
         except Exception as e:
@@ -48,7 +64,6 @@ class BotLogic:
         Функция связывания аккаунтов:
         - в случае успешной авторизации аккаунту в базе добавляется переданный telegram id
         """
-
         username = await self._get_answer_from_conv(conv=conv, question='Введи имя пользователя')
         if username:
             password = await self._get_answer_from_conv(conv=conv, question='Введи пароль')
@@ -62,7 +77,8 @@ class BotLogic:
                     current_user.telegram_id = self.telegram_id
                     current_user.save()
                     await conv.send_message(
-                        f'Аккаунты связаны: login {current_user.username}, telegram_id {current_user.telegram_id}')
+                        f'Аккаунты связаны: login {current_user.username}, telegram_id {current_user.telegram_id}',
+                        buttons=MAIN_MENU)
                 else:
                     await conv.send_message(f'Неверный логин или пароль')
 
@@ -71,12 +87,38 @@ class BotLogic:
         Функция создания аккаунта в системе на основе telegram id
         """
 
-        new_user = AuthUser(telegram_id=self.telegram_id, username=self.telegram_username)
-        new_user.save()
-        await conv.send_message(f'Создан новый аккаунт: login {new_user.username}, telegram_id {new_user.telegram_id}')
+        nickname = await self._get_answer_from_conv(conv=conv, question='Введи свой ник')
+        if nickname:
+            password = await self._get_answer_from_conv(conv=conv, question='Введи пароль')
+            if password:
+                new_user = AuthUser(telegram_id=self.telegram_id, username=self.telegram_username, nickname=nickname)
+                new_user.set_password(password)
+                new_user.save()
+                await conv.send_message(
+                    f'Создан новый аккаунт: login {new_user.username}, telegram_id {new_user.telegram_id}',
+                    buttons=MAIN_MENU)
 
     async def send_welcome_back(self):
-        await self.bot.send_message(self.telegram_id, 'С возвращением!')
+        await self.bot.send_message(self.telegram_id, 'С возвращением!', buttons=MAIN_MENU)
+
+    async def cancel_conversation(self):
+        async with self.bot.conversation(self.telegram_id, exclusive=False) as conv:
+            await conv.cancel_all()
+        await self.bot.send_message(self.telegram_id, 'Завершено', buttons=MAIN_MENU)
+
+    async def send_profile(self):
+        user = AuthUser.objects.get(telegram_id=self.telegram_id)
+        user_profile = f'__Данные:__\n\n' \
+                       f'  Имя пользователя: {user.username}\n' \
+                       f'  Никнэйм: **{user.nickname}**\n' \
+                       f'  Присоединился: __{str(user.date_joined)[:10]}__\n\n' \
+                       f'__Характеристики:__\n\n' \
+                       f'  Уровень: **{user.level}**\n' \
+                       f'  Опыт текущего уровня: {user.current_experience}\n' \
+                       f'  Ранг: {user.rank.split(",")[1].replace(")", "")}\n' \
+                       f'  Дивизион: {user.division}'
+
+        await self.bot.send_message(self.telegram_id, user_profile)
 
     async def create_or_merge_account(self):
         """
@@ -178,7 +220,8 @@ class BotLogic:
 
                     else:
                         # Если замечания закончились, возвращаемся к вопросу
-                        await conv.send_message(question_description_string, buttons=get_question_buttons())
+                        pass  # получалось дублирование сообщений, этот шаг лишний, TODO разобраться получше
+                        # await conv.send_message(question_description_string, buttons=get_question_buttons())
 
                 elif press.data == b'add_remark':
                     # Если пользователь нажал добавление замечания, берем текст и добавлем замечание
@@ -190,3 +233,175 @@ class BotLogic:
                     # Пользователь закончил оценку вопросов
                     await conv.send_message('Оценка вопросов завершена')
                     await conv.cancel()
+
+    async def _add_to_regular_queue(self):
+        # Добавление пользователя в очередь для обычной игры
+        global regular_queue
+        if self.telegram_id in regular_queue:
+            await self.bot.send_message(self.telegram_id, 'Вы уже находитесь в очереди.')
+        else:
+            regular_queue.append(self.telegram_id)
+            await self.bot.send_message(self.telegram_id,
+                                        'Вы добавлены в очередь для обычной игры. Подождите, пока найдется противник 🤞')
+
+    async def remove_from_regular_queue(self):
+        global regular_queue
+        if self.telegram_id in regular_queue:
+            regular_queue.remove(self.telegram_id)
+            await self.bot.send_message(self.telegram_id, 'Вы удалены из очереди', buttons=MAIN_MENU)
+        else:
+            await self.bot.send_message(self.telegram_id, 'Вы не состоите в очереди', buttons=MAIN_MENU)
+
+    async def _show_lobby(self):
+
+        game_type_buttons = [[Button.text(game_type[1], resize=True)] for game_type in GAMES_TYPES]
+        game_type_buttons.append([Button.text(TG_CANCEL_DIALOG, resize=True)])
+
+        await self.bot.send_message(self.telegram_id, 'Выберите тип игры:', buttons=game_type_buttons)
+
+        async with self.bot.conversation(self.telegram_id) as conv:
+            while True:
+                try:
+                    message_pattern = '^(' + '|'.join(game_type[1] for game_type in GAMES_TYPES) + '|Назад' + ')$'
+                    response = await conv.wait_event(events.NewMessage(pattern=message_pattern))
+                    if response.text == 'Обычная':
+                        await response.respond(f'Выбран режим {response.text}.',
+                                               buttons=Button.text(TG_LEAVE_QUEUE, resize=True))
+                        await self._add_to_regular_queue()
+                        break
+                    # elif response.text == 'Назад':
+                    #     await conv.send_message('Возвращайся, когда будет настроение!', buttons=MAIN_MENU)
+                    #     break
+                    else:
+                        await response.respond('К сожалению, этот тип игры пока недоступен.')
+                except asyncio.TimeoutError:
+                    await conv.send_message('Я не получил ответа, попробуйте снова.')
+                    break
+
+    async def play_game(self, game_process: GameProcessForUser):
+        await self._show_lobby()
+
+    async def add_question(self, adding_process: AddNewQuestionByUser):
+        """
+        Диалог добавления вопроса пользователем.
+        В будущем стоит
+        - снабдить ответы кнопками с текущими сущностями, чтобы если она уже есть пользователю не пришлось ее вводить;
+        - добавить кнопку "Отмена" на каждом шагу, иначе сейчас из диалога добавления не выйти до его завершения.
+        :param adding_process: AddNewQuestionByUser
+        :return:
+        """
+        async with self.bot.conversation(self.telegram_id) as conv:
+            category = await self._get_answer_from_conv(conv=conv, question='Введи категорию:')
+            if category:
+                question = await self._get_answer_from_conv(conv=conv, question='Введи вопрос:')
+                if question:
+                    answer = await self._get_answer_from_conv(conv=conv, question='Введи правильный ответ:')
+                    if answer:
+                        answer_type = await self._get_answer_from_conv(conv=conv, question='Введи тип ответа:')
+                        if answer_type:
+                            answer_subtype = await self._get_answer_from_conv(conv=conv,
+                                                                              question='Введи подтип ответа:')
+                            if answer_subtype:
+                                adding_process.add_question(question_text=question, question_category=category,
+                                                            answer_text=answer, answer_type=answer_type,
+                                                            answer_subtype=answer_subtype)
+                                await conv.send_message('Спасибо, вопрос добавлен. После проверки он попадет в игры.',
+                                                        buttons=MAIN_MENU)
+
+
+class TelegramGame:
+
+    def __init__(self, bot: TelegramClient):
+        self.bot = bot
+
+    async def _answering_to_questions(self, player, questions_to_ask):
+        answers = Answer.objects.all()
+        player_score = 0
+
+        async with self.bot.conversation(player, timeout=GAME_TIME_TO_ANSWER) as conv:
+            for i in range(GAME_QUESTIONS_COUNT):
+                question = questions_to_ask[i]
+
+                answer_buttons = [[Button.text(str(question.answer))]]
+                for random_answer in random.sample(list(answers), GAME_ANSWERS_COUNT - 1):
+                    answer_buttons.append([Button.text(random_answer.answer)])
+                random.shuffle(answer_buttons)
+
+                await conv.send_message(str(question.question), buttons=answer_buttons)
+                try:
+                    response = await conv.wait_event(events.NewMessage(incoming=True, from_users=player))
+                    # Получаем текст ответа
+                    text = response.message.text
+                    if text == str(question.answer):
+                        emotion = random.choice(TG_EMOTIONS_GOOD)
+                        await conv.send_message(f'Верно! {emotion}')
+                        player_score += 1
+                    else:
+                        emotion = random.choice(TG_EMOTIONS_BAD)
+                        await conv.send_message(f"Неверно {emotion}\nправильный ответ:\n{question.answer} ")
+                    time.sleep(GAME_TIME_SHOW_ANSWER)
+                except asyncio.exceptions.TimeoutError:
+                    await conv.send_message('Ты не успел ответить, время вышло 😞')
+                    continue
+
+            return player_score
+
+    async def _start_regular_game(self, players: list):
+
+        questions = Question.objects.all()
+        questions_to_ask = []
+        while len(questions_to_ask) < GAME_QUESTIONS_COUNT:
+            random_question = random.choice(questions)
+            if random_question not in questions_to_ask:
+                questions_to_ask.append(random_question)
+
+        # Получаем имена игроков
+        player_objs = []
+        for player in players:
+            player_obj = {'telegram_id': player, 'nickname': AuthUser.objects.get(telegram_id=player).nickname}
+            player_objs.append(player_obj)
+
+        for player_obj in player_objs:
+            others_list = [player_obj_['nickname'] for player_obj_ in player_objs if
+                           player_obj_['telegram_id'] != player_obj['telegram_id']]
+            await self.bot.send_message(player_obj['telegram_id'],
+                                        f"Игра начинается! Вы играете против {', '.join(others_list)}.")
+            time.sleep(GAME_TIME_BEFORE_START)
+            player_obj['task'] = asyncio.create_task(self._answering_to_questions(player=player_obj['telegram_id'],
+                                                                                  questions_to_ask=questions_to_ask))
+
+        for player_obj in player_objs:
+            player_score = await player_obj['task']
+            player_obj['score'] = player_score
+
+        winner = player_objs[0]
+        for player_obj in player_objs[1:]:
+            if player_obj['score'] > winner['score']:
+                winner = player_obj
+
+        await self.bot.send_message(winner['telegram_id'],
+                                    f'Игра окончена: ПОБЕДА! (правильных ответов: {winner["score"]})',
+                                    buttons=MAIN_MENU)
+        for player_obj in player_objs:
+            if player_obj != winner:
+                await self.bot.send_message(player_obj['telegram_id'],
+                                            f'Игра окончена: ПОРАЖЕНИЕ. (правильных ответов: {player_obj["score"]})',
+                                            buttons=MAIN_MENU)
+
+        # Тут нужно победителю начислитиь опыт.
+
+    async def matchmaking(self):
+        tasks = []
+        while True:
+            if len(regular_queue) >= GAME_MAX_PLAYERS:
+                players = []
+                while len(players) < GAME_MAX_PLAYERS:
+                    players.append(regular_queue.pop(0))
+                task = asyncio.create_task(self._start_regular_game(players=players))
+                tasks.append(task)
+                await asyncio.gather(*tasks)
+                done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+                for task in done:
+                    tasks.remove(task)
+            else:
+                await asyncio.sleep(1)
