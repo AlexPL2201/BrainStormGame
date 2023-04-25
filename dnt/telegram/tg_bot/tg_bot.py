@@ -39,7 +39,7 @@ class BotLogic:
 
         timeout_message = 'Время ответа истекло'
         try:
-            await conv.send_message(question, buttons=Button.text(TG_CANCEL_DIALOG))
+            await conv.send_message(question, buttons=Button.text(TG_CANCEL_DIALOG, resize=True))
             answer = await conv.get_response()
             return answer.text
         except Exception as e:
@@ -305,7 +305,8 @@ class BotLogic:
                                 adding_process.add_question(question_text=question, question_category=category,
                                                             answer_text=answer, answer_type=answer_type,
                                                             answer_subtype=answer_subtype)
-                                await conv.send_message('Спасибо, вопрос добавлен. После проверки он попадет в игры.')
+                                await conv.send_message('Спасибо, вопрос добавлен. После проверки он попадет в игры.',
+                                                        buttons=MAIN_MENU)
 
 
 class TelegramGame:
@@ -337,7 +338,7 @@ class TelegramGame:
                         player_score += 1
                     else:
                         emotion = random.choice(TG_EMOTIONS_BAD)
-                        await conv.send_message(f"Неверно {emotion},\nправильный ответ:\n{question.answer} ")
+                        await conv.send_message(f"Неверно {emotion}\nправильный ответ:\n{question.answer} ")
                     time.sleep(GAME_TIME_SHOW_ANSWER)
                 except asyncio.exceptions.TimeoutError:
                     await conv.send_message('Ты не успел ответить, время вышло 😞')
